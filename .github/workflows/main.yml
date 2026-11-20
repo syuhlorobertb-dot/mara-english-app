@@ -36,6 +36,16 @@ jobs:
           npx cap init "Mara English AI" "com.mara.aidictionary" --web-dir www
           npx cap add android
 
+      - name: Resolve Kotlin stdlib duplicate class conflict
+        run: |
+          cat << 'EOF' >> android/app/build.gradle
+
+          configurations.all {
+              exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jdk7'
+              exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jdk8'
+          }
+          EOF
+
       - name: Build debug APK
         run: |
           cd android
