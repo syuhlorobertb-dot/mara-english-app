@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mara–English Offline AI Dictionary & Translator</title>
+  <title>Mara-English Offline AI Dictionary &amp; Translator</title>
   <style>
     :root {
       --bg: #0f172a;
@@ -153,9 +153,374 @@
   <div class="app">
     <header>
       <h1>Mara–English Offline AI</h1>
-      <p>100% offline dictionary, phrasebook & smart lookup (preserves diacritics: ô, â, y).</p>
+      <p>100% offline dictionary, phrasebook &amp; smart lookup (preserves diacritics: ô, â, y).</p>
     </header>
 
     <div class="tabs">
-      <button class="tab-btn active" onclick="switchTab('dict')">Dictionary & Phrases</button>
-      <button class="tab-btn" onclick="switchTab('helper')">Phrase &
+      <button id="tabBtnDict" type="button" class="tab-btn active" onclick="switchTab('dict')">Dictionary &amp; Phrases</button>
+      <button id="tabBtnHelper" type="button" class="tab-btn" onclick="switchTab('helper')">Phrase &amp; Word Helper</button>
+    </div>
+
+    <section id="dict" class="panel active">
+      <div class="controls">
+        <input id="searchInput" type="text" placeholder="Search Mara or English (e.g., water, ti, samaw, tomato)..." oninput="renderEntries()" />
+        <select id="categoryFilter" onchange="renderEntries()">
+          <option value="ALL">All Categories</option>
+        </select>
+      </div>
+      <div id="resultCount" class="stats"></div>
+      <div id="entriesList"></div>
+    </section>
+
+    <section id="helper" class="panel">
+      <p class="stats">Enter a word or short phrase in English or Mara to find exact matches, phrasebook lines, and word-by-word offline matches.</p>
+      <textarea id="helperInput" rows="3" placeholder="Type here... e.g., Good night or Na pha ma"></textarea>
+      <button type="button" class="action-btn" onclick="runHelper()">Translate / Match Offline</button>
+      <div id="helperOutput" class="output-box">Matches will appear here.</div>
+    </section>
+  </div>
+
+  <script>
+    var DATA = [
+      { en: "I", mara: "kei", type: "word", cat: "Pronouns" },
+      { en: "you", mara: "Nâ", type: "word", cat: "Pronouns" },
+      { en: "he", mara: "ano, a", type: "word", cat: "Pronouns" },
+      { en: "she", mara: "ano, a", type: "word", cat: "Pronouns" },
+      { en: "we", mara: "eima, keimo", type: "word", cat: "Pronouns" },
+      { en: "they", mara: "ama, âmo", type: "word", cat: "Pronouns" },
+      { en: "what", mara: "khâpa", type: "word", cat: "Question words" },
+      { en: "where", mara: "Khataih lâ/liata", type: "word", cat: "Question words" },
+      { en: "who", mara: "tu", type: "word", cat: "Question words" },
+      { en: "to be", mara: "y, châ", type: "word", cat: "Verbs" },
+      { en: "to have", mara: "hnei", type: "word", cat: "Verbs" },
+      { en: "to do / to make", mara: "tao", type: "word", cat: "Verbs" },
+      { en: "to go", mara: "sie", type: "word", cat: "Verbs" },
+      { en: "to come", mara: "avy", type: "word", cat: "Verbs" },
+      { en: "to see / to find", mara: "hmô", type: "word", cat: "Verbs" },
+      { en: "to know", mara: "pahno", type: "word", cat: "Verbs" },
+      { en: "to eat", mara: "nie", type: "word", cat: "Verbs" },
+      { en: "to drink", mara: "doh", type: "word", cat: "Verbs" },
+      { en: "to sleep", mara: "amô", type: "word", cat: "Verbs" },
+      { en: "to say / to read / to speak", mara: "reih", type: "word", cat: "Verbs" },
+      { en: "person", mara: "chyhsa", type: "word", cat: "People" },
+      { en: "man", mara: "chapaw", type: "word", cat: "People" },
+      { en: "woman", mara: "chanô", type: "word", cat: "People" },
+      { en: "child", mara: "hawtipa", type: "word", cat: "People" },
+      { en: "mother", mara: "nô", type: "word", cat: "Family" },
+      { en: "father", mara: "paw", type: "word", cat: "Family" },
+      { en: "friend", mara: "viasa", type: "word", cat: "People" },
+      { en: "house / home", mara: "o", type: "word", cat: "Places" },
+      { en: "school", mara: "siku", type: "word", cat: "Places" },
+      { en: "world", mara: "khizaw", type: "word", cat: "Places" },
+      { en: "month", mara: "thla", type: "word", cat: "Time" },
+      { en: "year", mara: "kô", type: "word", cat: "Time" },
+      { en: "today", mara: "atanoh", type: "word", cat: "Time" },
+      { en: "tomorrow", mara: "mylâ", type: "word", cat: "Time" },
+      { en: "yesterday", mara: "zâhnia", type: "word", cat: "Time" },
+      { en: "sun", mara: "noh", type: "word", cat: "Nature" },
+      { en: "moon", mara: "thlâpâ", type: "word", cat: "Nature" },
+      { en: "star", mara: "awhsi", type: "word", cat: "Nature" },
+      { en: "fire", mara: "mei", type: "word", cat: "Nature" },
+      { en: "water", mara: "ti", type: "word", cat: "Nature" },
+      { en: "wind", mara: "thlih", type: "word", cat: "Nature" },
+      { en: "tree", mara: "thing", type: "word", cat: "Nature" },
+      { en: "rice", mara: "sâh", type: "word", cat: "Food" },
+      { en: "fish", mara: "ngasa", type: "word", cat: "Food" },
+      { en: "meat", mara: "sa", type: "word", cat: "Food" },
+      { en: "tea", mara: "thopi", type: "word", cat: "Food" },
+      { en: "head", mara: "luh", type: "word", cat: "Body" },
+      { en: "eye", mara: "mo", type: "word", cat: "Body" },
+      { en: "mouth", mara: "pakah", type: "word", cat: "Body" },
+      { en: "hand", mara: "ku", type: "word", cat: "Body" },
+      { en: "foot", mara: "phei", type: "word", cat: "Body" },
+      { en: "name", mara: "moh", type: "word", cat: "Objects/concepts" },
+      { en: "book", mara: "châbu", type: "word", cat: "Objects/concepts" },
+      { en: "word", mara: "bie", type: "word", cat: "Objects/concepts", note: "Alternative biesâ also supplied" },
+      { en: "money", mara: "phusâ", type: "word", cat: "Objects/concepts" },
+      { en: "work", mara: "rai", type: "word", cat: "Objects/concepts" },
+      { en: "good", mara: "pha", type: "word", cat: "Adjectives" },
+      { en: "bad", mara: "chhie, pha leipa", type: "word", cat: "Adjectives" },
+      { en: "big", mara: "lai", type: "word", cat: "Adjectives" },
+      { en: "small", mara: "tataw", type: "word", cat: "Adjectives" },
+      { en: "new", mara: "thieh", type: "word", cat: "Adjectives" },
+      { en: "old", mara: "paroh", type: "word", cat: "Adjectives" },
+      { en: "fast", mara: "chatlie", type: "word", cat: "Adjectives" },
+      { en: "slow", mara: "dusaw, nainôsô", type: "word", cat: "Adjectives" },
+      { en: "on top / above", mara: "chô liata", type: "word", cat: "Spatial" },
+      { en: "underneath / under", mara: "ry liata", type: "word", cat: "Spatial" },
+      { en: "inside", mara: "chhôh liata", type: "word", cat: "Spatial" },
+      { en: "above / higher up", mara: "Machha lâ", type: "word", cat: "Spatial" },
+      { en: "below / lower down", mara: "Mathi lâ", type: "word", cat: "Spatial" },
+      { en: "here", mara: "He liata", type: "word", cat: "Spatial" },
+      { en: "there", mara: "Hao liata", type: "word", cat: "Spatial" },
+      { en: "up there", mara: "Khi liata", type: "word", cat: "Spatial" },
+      { en: "down there", mara: "Khu liata", type: "word", cat: "Spatial" },
+      { en: "before / in front", mara: "Hmialâ", type: "word", cat: "Spatial" },
+      { en: "behind", mara: "Hnôh lâ / hnoh lâ", type: "word", cat: "Spatial" },
+      { en: "round about", mara: "chahlô", type: "word", cat: "Spatial" },
+      { en: "Bamboo shoot", mara: "Âteih", type: "word", cat: "Vegetables" },
+      { en: "Brinjal, Aubergine, Egg plant", mara: "Maityu, Babao", type: "word", cat: "Vegetables" },
+      { en: "Bean", mara: "Abiah, Bahly", type: "word", cat: "Vegetables" },
+      { en: "Bitter gourd/melon", mara: "Lâbua", type: "word", cat: "Vegetables" },
+      { en: "Cabbage", mara: "Chohlô", type: "word", cat: "Vegetables" },
+      { en: "Cauliflower", mara: "Âhrâpawhlô/Pawhlô", type: "word", cat: "Vegetables" },
+      { en: "Capsicum", mara: "Âhiahthawhpu laipa", type: "word", cat: "Vegetables" },
+      { en: "Chilli", mara: "Âhiah", type: "word", cat: "Vegetables" },
+      { en: "Chili Pepper", mara: "Âhiathawhpu", type: "word", cat: "Vegetables" },
+      { en: "Cucumber", mara: "Athei", type: "word", cat: "Vegetables" },
+      { en: "Garlic", mara: "Khâchhaorâhpa", type: "word", cat: "Vegetables" },
+      { en: "Ginger", mara: "Iahso", type: "word", cat: "Vegetables" },
+      { en: "Lady's finger", mara: "Âpahniahpa", type: "word", cat: "Vegetables" },
+      { en: "Maize, Corn", mara: "Chhâmeih", type: "word", cat: "Vegetables" },
+      { en: "Mustard", mara: "Âhrâ", type: "word", cat: "Vegetables" },
+      { en: "Onion", mara: "Khâchhaosaihpa", type: "word", cat: "Vegetables" },
+      { en: "Potato", mara: "Âlu", type: "word", cat: "Vegetables" },
+      { en: "Rice", mara: "Sâh, sahphâ.", type: "word", cat: "Food" },
+      { en: "Soyabeen", mara: "Barô", type: "word", cat: "Vegetables" },
+      { en: "Sweet Potato", mara: "Biabahra", type: "word", cat: "Vegetables" },
+      { en: "Tomato", mara: "Viahbabao", type: "word", cat: "Vegetables" },
+      { en: "Hi/Hello", mara: "Samaw", type: "sentence", cat: "Greetings & Daily" },
+      { en: "What is your name?", mara: "Na moh ahy maw?", type: "sentence", cat: "Greetings & Daily" },
+      { en: "My name is Nana", mara: "Ei moh cha Nana a châ.", type: "sentence", cat: "Greetings & Daily" },
+      { en: "How are you?", mara: "Na tlâh ma / Na pha ma?", type: "sentence", cat: "Greetings & Daily" },
+      { en: "I am fine", mara: "Ei tlâh/pha nona a châ.", type: "sentence", cat: "Greetings & Daily" },
+      { en: "Thank you", mara: "Ei châ ly", type: "sentence", cat: "Greetings & Daily" },
+      { en: "Where are you going?", mara: "Khataihlâ na vawh aw/na sie aw?", type: "sentence", cat: "Greetings & Daily" },
+      { en: "I'm going home", mara: "Ei di tua aw.", type: "sentence", cat: "Greetings & Daily" },
+      { en: "Can you speak Mara?", mara: "Mara reih na thai ma?", type: "sentence", cat: "Greetings & Daily" },
+      { en: "What are you doing?", mara: "Khâpa na tao?", type: "sentence", cat: "Greetings & Daily" },
+      { en: "Don't worry", mara: "Na pachâ aparôhsa khâ.", type: "sentence", cat: "Greetings & Daily" },
+      { en: "I love you", mara: "Kyh ei cha pachâ.", type: "sentence", cat: "Greetings & Daily" },
+      { en: "What is this?", mara: "He he khâpa maw?", type: "sentence", cat: "Commands & Questions" },
+      { en: "Be careful", mara: "A sohsi ma y.", type: "sentence", cat: "Commands & Questions" },
+      { en: "Follow me", mara: "Na vaw pazi tyh.", type: "sentence", cat: "Commands & Questions" },
+      { en: "Have you ever been to Siaha?", mara: "Siaha na tlô mâh ma?", type: "sentence", cat: "Commands & Questions" },
+      { en: "This is a cow.", mara: "He he viahchao a châ.", type: "sentence", cat: "Animals" },
+      { en: "This is a dog.", mara: "He he I a châ.", type: "sentence", cat: "Animals" },
+      { en: "This is a cat.", mara: "He he chhiezao a châ.", type: "sentence", cat: "Animals" },
+      { en: "This is my house.", mara: "He he ei O a châ.", type: "sentence", cat: "Home" },
+      { en: "I am going to Siaha.", mara: "Siaha lâ ei sie aw.", type: "sentence", cat: "Greetings & Daily" },
+      { en: "Who are you?", mara: "Ahy na châ?", type: "sentence", cat: "Greetings & Daily" },
+      { en: "I am a Tourist.", mara: "Khitlyhpa ei châ.", type: "sentence", cat: "Greetings & Daily" },
+      { en: "What is your father's name?", mara: "Na paw moh ahy maw?", type: "sentence", cat: "Family" },
+      { en: "My father's name is Khukhu.", mara: "Ei pâ moh cha Khukhu a châ.", type: "sentence", cat: "Family" },
+      { en: "Have you taken your meal?", mara: "Pati na nie haw?", type: "sentence", cat: "Food, Meals & Dining" },
+      { en: "Open the door", mara: "Ochhi pahy tyh.", type: "sentence", cat: "Commands & Questions" },
+      { en: "Shut the door", mara: "Ochhi khaw tyh.", type: "sentence", cat: "Commands & Questions" },
+      { en: "Good night", mara: "Mâ pha sy.", type: "sentence", cat: "Greetings & Daily" },
+      { en: "I do not know", mara: "Pahno na.", type: "sentence", cat: "Commands & Questions" },
+      { en: "Are you a Christian?", mara: "Krizyhpa na châ ma?", type: "sentence", cat: "Church Service & Faith" },
+      { en: "Yes, I am a Christian", mara: "Uh, Krizyhpa ei châ.", type: "sentence", cat: "Church Service & Faith" },
+      { en: "Are you a believer?", mara: "Ngiapâtuhpa na châ ma?", type: "sentence", cat: "Church Service & Faith" },
+      { en: "Yes, I go to church every Sunday", mara: "Uh, Khazohpanoh ta ei Pakhy tyh.", type: "sentence", cat: "Church Service & Faith" },
+      { en: "Where is your church located?", mara: "Khataih liata nama chhyna O a y?", type: "sentence", cat: "Church Service & Faith" },
+      { en: "Who is your Pastor?", mara: "Ahy ma nama Pastor?", type: "sentence", cat: "Church Service & Faith" },
+      { en: "Let's sing a song/hymn", mara: "Reithaina Hla vaw sa suh vy.", type: "sentence", cat: "Church Service & Faith" },
+      { en: "I will go to church", mara: "Ei Pakhy aw", type: "sentence", cat: "Church Service & Faith" },
+      { en: "Don't forget to pray", mara: "Thlahchhâ awpa my kha y.", type: "sentence", cat: "Church Service & Faith" },
+      { en: "Jesus loves you", mara: "Zisu ta kyh a cha pachâ", type: "sentence", cat: "Church Service & Faith" },
+      { en: "God is great", mara: "Khazohpa a rônah tlai na", type: "sentence", cat: "Church Service & Faith" },
+      { en: "Can you translate Bible verse for me?", mara: "Biehrai châh eina paliepa thei chi ma?", type: "sentence", cat: "Church Service & Faith" }
+    ];
+
+    function normalizeText(str) {
+      var s = (str || "").toLowerCase();
+      if (s.normalize) {
+        s = s.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      }
+      return s
+        .replace(/ô/g, "o")
+        .replace(/â/g, "a")
+        .replace(/^\s+|\s+$/g, "");
+    }
+
+    function populateCategories() {
+      var select = document.getElementById("categoryFilter");
+      var seen = {};
+      var cats = [];
+      for (var i = 0; i < DATA.length; i++) {
+        var c = DATA[i].cat;
+        if (c && !seen[c]) {
+          seen[c] = true;
+          cats.push(c);
+        }
+      }
+      cats.sort();
+      for (var j = 0; j < cats.length; j++) {
+        var opt = document.createElement("option");
+        opt.value = cats[j];
+        opt.appendChild(document.createTextNode(cats[j]));
+        select.appendChild(opt);
+      }
+    }
+
+    function renderEntries() {
+      var searchEl = document.getElementById("searchInput");
+      var catEl = document.getElementById("categoryFilter");
+      var countEl = document.getElementById("resultCount");
+      var listEl = document.getElementById("entriesList");
+
+      var q = normalizeText(searchEl.value);
+      var cat = catEl.value;
+      var filtered = [];
+
+      for (var i = 0; i < DATA.length; i++) {
+        var item = DATA[i];
+        var matchesCat = (cat === "ALL" || item.cat === cat);
+        var matchesQuery =
+          !q ||
+          normalizeText(item.en).indexOf(q) !== -1 ||
+          normalizeText(item.mara).indexOf(q) !== -1 ||
+          normalizeText(item.cat).indexOf(q) !== -1;
+
+        if (matchesCat && matchesQuery) {
+          filtered.push(item);
+        }
+      }
+
+      countEl.textContent = "Showing " + filtered.length + " of " + DATA.length + " offline entries";
+      listEl.innerHTML = "";
+
+      for (var k = 0; k < filtered.length; k++) {
+        var entryItem = filtered[k];
+
+        var card = document.createElement("div");
+        card.className = "entry";
+
+        var top = document.createElement("div");
+        top.className = "entry-top";
+
+        var maraSpan = document.createElement("span");
+        maraSpan.className = "mara-text";
+        maraSpan.appendChild(document.createTextNode(entryItem.mara));
+
+        var badgeSpan = document.createElement("span");
+        badgeSpan.className = "badge";
+        badgeSpan.appendChild(document.createTextNode(entryItem.cat + " • " + entryItem.type));
+
+        top.appendChild(maraSpan);
+        top.appendChild(badgeSpan);
+
+        var engDiv = document.createElement("div");
+        engDiv.className = "eng-text";
+        engDiv.appendChild(document.createTextNode(entryItem.en));
+
+        card.appendChild(top);
+        card.appendChild(engDiv);
+
+        if (entryItem.note) {
+          var metaDiv = document.createElement("div");
+          metaDiv.className = "meta";
+          metaDiv.appendChild(document.createTextNode(entryItem.note));
+          card.appendChild(metaDiv);
+        }
+
+        listEl.appendChild(card);
+      }
+    }
+
+    function switchTab(tabId) {
+      var dictBtn = document.getElementById("tabBtnDict");
+      var helperBtn = document.getElementById("tabBtnHelper");
+      var dictPanel = document.getElementById("dict");
+      var helperPanel = document.getElementById("helper");
+
+      if (tabId === "dict") {
+        dictBtn.className = "tab-btn active";
+        helperBtn.className = "tab-btn";
+        dictPanel.className = "panel active";
+        helperPanel.className = "panel";
+      } else {
+        dictBtn.className = "tab-btn";
+        helperBtn.className = "tab-btn active";
+        dictPanel.className = "panel";
+        helperPanel.className = "panel active";
+      }
+    }
+
+    function runHelper() {
+      var raw = document.getElementById("helperInput").value.replace(/^\s+|\s+$/g, "");
+      var out = document.getElementById("helperOutput");
+      if (!raw) {
+        out.textContent = "Please type a word or phrase first.";
+        return;
+      }
+
+      var normInput = normalizeText(raw);
+      var directMatches = [];
+
+      for (var i = 0; i < DATA.length; i++) {
+        var item = DATA[i];
+        if (
+          normalizeText(item.en).indexOf(normInput) !== -1 ||
+          normalizeText(item.mara).indexOf(normInput) !== -1
+        ) {
+          directMatches.push(item);
+        }
+      }
+
+      var tokens = normInput.split(/[^a-z0-9]+/);
+      var tokenMatches = [];
+
+      for (var t = 0; t < tokens.length; t++) {
+        var tok = tokens[t];
+        if (!tok) continue;
+
+        for (var w = 0; w < DATA.length; w++) {
+          var wordEntry = DATA[w];
+          if (wordEntry.type !== "word") continue;
+
+          var enParts = normalizeText(wordEntry.en).split(/[\s,\/]+/);
+          var maraParts = normalizeText(wordEntry.mara).split(/[\s,\/]+/);
+
+          var foundInEn = false;
+          var foundInMara = false;
+
+          for (var e = 0; e < enParts.length; e++) {
+            if (enParts[e] === tok) {
+              foundInEn = true;
+              break;
+            }
+          }
+          for (var m = 0; m < maraParts.length; m++) {
+            if (maraParts[m] === tok) {
+              foundInMara = true;
+              break;
+            }
+          }
+
+          if (foundInEn || foundInMara) {
+            tokenMatches.push(tok + " -> " + wordEntry.mara + " (" + wordEntry.en + ")");
+            break;
+          }
+        }
+      }
+
+      var lines = [];
+      if (directMatches.length > 0) {
+        lines.push("Direct / Phrase Matches:");
+        var maxDirect = directMatches.length < 8 ? directMatches.length : 8;
+        for (var d = 0; d < maxDirect; d++) {
+          var dm = directMatches[d];
+          lines.push("• " + dm.en + "  =>  " + dm.mara + " [" + dm.cat + "]");
+        }
+      } else {
+        lines.push("No direct phrase match found in v1 offline data.");
+      }
+
+      if (tokenMatches.length > 0) {
+        lines.push("");
+        lines.push("Word-by-Word Lookup:");
+        for (var tm = 0; tm < tokenMatches.length; tm++) {
+          lines.push("• " + tokenMatches[tm]);
+        }
+      }
+
+      out.textContent = lines.join("\n");
+    }
+
+    populateCategories();
+    renderEntries();
+  </script>
+</body>
+</html>
