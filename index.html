@@ -3,524 +3,1086 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mara-English Offline AI Dictionary &amp; Translator</title>
+  <title>MARA — English–Mara Language</title>
   <style>
     :root {
-      --bg: #0f172a;
-      --surface: #1e293b;
-      --surface-2: #334155;
-      --text: #f8fafc;
-      --muted: #94a3b8;
-      --accent: #38bdf8;
-      --accent-2: #34d399;
-      --border: #334155;
+      --bg-navy: #08131f;
+      --surface-dark: #0f2234;
+      --surface-card: #13293d;
+      --card-white: #f8fafc;
+      --teal: #14b8a6;
+      --teal-bright: #0d9488;
+      --text-white: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dark: #0f172a;
+      --border-subtle: rgba(148, 163, 184, 0.16);
     }
-    * { box-sizing: border-box; }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
     body {
-      margin: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.5;
-      padding: 16px;
+      background: var(--bg-navy);
+      color: var(--text-white);
+      min-height: 100vh;
+      padding-bottom: 88px;
     }
-    .app {
-      max-width: 780px;
+
+    .app-header {
+      padding: 18px 20px 12px;
+      border-bottom: 1px solid var(--border-subtle);
+      background: var(--bg-navy);
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+
+    .app-header h1 {
+      font-size: 24px;
+      letter-spacing: 1.5px;
+      font-weight: 700;
+    }
+
+    .app-header p {
+      font-size: 12px;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .container {
+      max-width: 720px;
       margin: 0 auto;
-    }
-    header {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 18px;
-      margin-bottom: 14px;
-    }
-    header h1 {
-      margin: 0 0 6px;
-      font-size: 1.35rem;
-      color: var(--accent);
-    }
-    header p {
-      margin: 0;
-      color: var(--muted);
-      font-size: 0.92rem;
-    }
-    .tabs {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 14px;
-    }
-    .tab-btn {
-      flex: 1;
-      padding: 11px;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-      background: var(--surface);
-      color: var(--text);
-      font-weight: 600;
-      cursor: pointer;
-    }
-    .tab-btn.active {
-      background: var(--accent);
-      color: #082f49;
-      border-color: var(--accent);
-    }
-    .panel {
-      display: none;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 14px;
       padding: 16px;
     }
-    .panel.active { display: block; }
-    .controls {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-bottom: 14px;
+
+    .section-label {
+      font-size: 11px;
+      letter-spacing: 1.4px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-bottom: 10px;
     }
-    input, select, textarea {
+
+    .translate-panel {
+      background: var(--surface-dark);
+      border: 1px solid var(--border-subtle);
+      border-radius: 18px;
+      padding: 14px;
+      margin-bottom: 18px;
+    }
+
+    .translate-card {
+      background: var(--card-white);
+      color: var(--text-dark);
+      border-radius: 14px;
+      padding: 14px 16px;
+    }
+
+    .field-tag {
+      font-size: 12px;
+      color: #64748b;
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .input-box {
       width: 100%;
-      padding: 12px;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-      background: var(--bg);
-      color: var(--text);
-      font-size: 1rem;
+      border: none;
+      background: transparent;
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text-dark);
+      outline: none;
+      resize: none;
+      min-height: 44px;
     }
-    .stats {
-      font-size: 0.85rem;
-      color: var(--muted);
-      margin-bottom: 10px;
+
+    .divider {
+      height: 1px;
+      background: #e2e8f0;
+      margin: 12px 0;
     }
-    .entry {
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 12px;
-      margin-bottom: 10px;
+
+    .output-text {
+      font-size: 21px;
+      font-weight: 700;
+      color: var(--teal-bright);
+      min-height: 32px;
+      line-height: 1.35;
     }
-    .entry-top {
+
+    .output-sub {
+      font-size: 13px;
+      color: #475569;
+      margin-top: 6px;
+      line-height: 1.4;
+    }
+
+    .translate-footer {
       display: flex;
       justify-content: space-between;
-      align-items: baseline;
-      gap: 8px;
-      flex-wrap: wrap;
+      align-items: center;
+      margin-top: 12px;
+      padding: 0 4px;
     }
-    .mara-text {
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: var(--accent-2);
+
+    .direction-label {
+      font-size: 14px;
+      color: #cbd5e1;
     }
-    .badge {
-      font-size: 0.75rem;
-      padding: 2px 8px;
-      border-radius: 999px;
-      background: var(--surface-2);
-      color: var(--accent);
-    }
-    .eng-text {
-      margin-top: 4px;
-      font-size: 0.98rem;
-    }
-    .meta {
-      margin-top: 4px;
-      font-size: 0.8rem;
-      color: var(--muted);
-    }
-    button.action-btn {
-      margin-top: 10px;
-      padding: 11px 16px;
-      border-radius: 10px;
+
+    .swap-btn {
+      background: var(--teal);
+      color: #042f2e;
       border: none;
-      background: var(--accent-2);
-      color: #052e16;
+      border-radius: 10px;
+      padding: 8px 14px;
       font-weight: 700;
-      font-size: 0.95rem;
+      font-size: 14px;
       cursor: pointer;
     }
-    .output-box {
-      margin-top: 12px;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 14px;
-      white-space: pre-wrap;
+
+    .grid-6 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .tile {
+      background: var(--surface-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 16px;
+      text-align: left;
+      color: var(--text-white);
+      cursor: pointer;
+      transition: transform 0.15s ease, border-color 0.15s ease;
+    }
+
+    .tile:hover, .tile.active {
+      border-color: var(--teal);
+      transform: translateY(-1px);
+    }
+
+    .tile-icon {
+      color: var(--teal);
+      font-size: 18px;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .tile-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      line-height: 1.25;
+    }
+
+    .tile-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.35;
+    }
+
+    .panel {
+      background: var(--surface-dark);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .panel-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .panel h2 {
+      font-size: 18px;
+      color: var(--teal);
+    }
+
+    .count-badge {
+      font-size: 12px;
+      color: var(--text-white);
+      background: rgba(20, 184, 166, 0.2);
+      border: 1px solid rgba(20, 184, 166, 0.4);
+      padding: 3px 10px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+
+    .search-input, .form-input, .form-select {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      background: var(--bg-navy);
+      color: var(--text-white);
+      font-size: 15px;
+      margin-bottom: 10px;
+      outline: none;
+    }
+
+    .search-input:focus, .form-input:focus, .form-select:focus {
+      border-color: var(--teal);
+    }
+
+    .entry-item {
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .entry-item:last-child {
+      border-bottom: none;
+    }
+
+    .entry-eng {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .entry-mara {
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--text-white);
+      margin-top: 3px;
+      line-height: 1.35;
+    }
+
+    .entry-detail {
+      font-size: 13px;
+      color: #cbd5e1;
+      margin-top: 5px;
+      line-height: 1.45;
+    }
+
+    .entry-cat {
+      display: inline-block;
+      margin-top: 7px;
+      font-size: 11px;
+      color: var(--teal);
+      background: rgba(20, 184, 166, 0.14);
+      padding: 2px 8px;
+      border-radius: 999px;
+    }
+
+    .primary-btn {
+      width: 100%;
+      padding: 12px;
+      border-radius: 12px;
+      border: none;
+      background: var(--teal);
+      color: #042f2e;
+      font-weight: 700;
+      font-size: 15px;
+      cursor: pointer;
+    }
+
+    .secondary-btn {
+      width: 100%;
+      padding: 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      background: transparent;
+      color: var(--text-muted);
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--surface-dark);
+      border-top: 1px solid var(--border-subtle);
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      padding: 8px 0;
+      z-index: 30;
+    }
+
+    .nav-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.6px;
+      padding: 6px 4px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .nav-btn.active {
+      color: var(--teal);
     }
   </style>
 </head>
 <body>
-  <div class="app">
-    <header>
-      <h1>Mara–English Offline AI</h1>
-      <p>100% offline dictionary, phrasebook &amp; smart lookup (preserves diacritics: ô, â, y).</p>
-    </header>
+  <header class="app-header">
+    <h1>MARA</h1>
+    <p>ENGLISH – MARA LANGUAGE</p>
+  </header>
 
-    <div class="tabs">
-      <button id="tabBtnDict" type="button" class="tab-btn active" onclick="switchTab('dict')">Dictionary &amp; Phrases</button>
-      <button id="tabBtnHelper" type="button" class="tab-btn" onclick="switchTab('helper')">Phrase &amp; Word Helper</button>
-    </div>
-
-    <section id="dict" class="panel active">
-      <div class="controls">
-        <input id="searchInput" type="text" placeholder="Search Mara or English (e.g., water, ti, samaw, tomato)..." oninput="renderEntries()" />
-        <select id="categoryFilter" onchange="renderEntries()">
-          <option value="ALL">All Categories</option>
-        </select>
+  <main class="container">
+    <section id="view-home">
+      <div class="section-label">TRANSLATE</div>
+      <div class="translate-panel">
+        <div class="translate-card">
+          <span class="field-tag" id="sourceLabel">English</span>
+          <textarea id="translatorInput" class="input-box" rows="2" placeholder="Type a word or phrase...">Good morning</textarea>
+          <div class="divider"></div>
+          <span class="field-tag" id="targetLabel">Mara</span>
+          <div id="translatorOutput" class="output-text">Mâ pha sy.</div>
+          <div id="translatorSub" class="output-sub">Word Dictionary</div>
+        </div>
+        <div class="translate-footer">
+          <span class="direction-label" id="directionText">English → Mara</span>
+          <button class="swap-btn" id="swapBtn" type="button">⇄ Swap</button>
+        </div>
       </div>
-      <div id="resultCount" class="stats"></div>
-      <div id="entriesList"></div>
+
+      <div class="grid-6">
+        <button class="tile" data-filter="Word Dictionary" type="button">
+          <span class="tile-icon">📖</span>
+          <div class="tile-title">Word Dictionary</div>
+          <div class="tile-sub">Find Mara words &amp; daily phrases</div>
+        </button>
+
+        <button class="tile" data-filter="Mara Hlabie" type="button">
+          <span class="tile-icon">🪶</span>
+          <div class="tile-title">Mara Hlabie</div>
+          <div class="tile-sub">Poetic diction &amp; song vocabulary</div>
+        </button>
+
+        <button class="tile" data-filter="Mara Grammar" type="button">
+          <span class="tile-icon">🎓</span>
+          <div class="tile-title">Mara Grammar</div>
+          <div class="tile-sub">Parts of speech, tenses &amp; orthography</div>
+        </button>
+
+        <button class="tile" data-filter="Reih Machâpa / Nôpaw Biephôh" type="button">
+          <span class="tile-icon">📜</span>
+          <div class="tile-title">Reih Machâpa / Nôpaw Biephôh</div>
+          <div class="tile-sub">Idiom &amp; Phrases, elders' proverbs &amp; formal speech</div>
+        </button>
+
+        <button class="tile" data-open="editor" type="button">
+          <span class="tile-icon">✏️</span>
+          <div class="tile-title">Word Editor</div>
+          <div class="tile-sub">Add, edit &amp; save custom words</div>
+        </button>
+
+        <button class="tile" data-filter="Cultural & Church" type="button">
+          <span class="tile-icon">🏛️</span>
+          <div class="tile-title">Cultural &amp; Church</div>
+          <div class="tile-sub">Worship, market &amp; daily life</div>
+        </button>
+      </div>
     </section>
 
-    <section id="helper" class="panel">
-      <p class="stats">Enter a word or short phrase in English or Mara to find exact matches, phrasebook lines, and word-by-word offline matches.</p>
-      <textarea id="helperInput" rows="3" placeholder="Type here... e.g., Good night or Na pha ma"></textarea>
-      <button type="button" class="action-btn" onclick="runHelper()">Translate / Match Offline</button>
-      <div id="helperOutput" class="output-box">Matches will appear here.</div>
+    <section id="view-dictionary" class="hidden">
+      <div class="panel">
+        <div class="panel-top">
+          <h2 id="dictionaryHeading">Word Dictionary</h2>
+          <span class="count-badge" id="resultCount">0 entries</span>
+        </div>
+        <input id="searchBox" class="search-input" type="text" placeholder="Search English, Mara, meaning or example..." />
+        <div id="dictionaryList"></div>
+      </div>
     </section>
-  </div>
+
+    <section id="view-grammar" class="hidden">
+      <div class="panel">
+        <h2>Mara Grammar &amp; Orthography</h2>
+        <div class="entry-item">
+          <div class="entry-eng">Tone &amp; Orthography (A vs. Â)</div>
+          <div class="entry-mara">Unaccented 'a' = lower tone (like 'u' in Sun); 'â' = higher tone (like 'a' in Father).</div>
+        </div>
+        <div class="entry-item">
+          <div class="entry-eng">Spacing Rule: Ei châ ly</div>
+          <div class="entry-mara">Write as three separate words (Subject Ei + Object châ + Verb ly), never 'Ei châly'.</div>
+        </div>
+        <div class="entry-item">
+          <div class="entry-eng">Spacing Rule: My Pha</div>
+          <div class="entry-mara">Write as two separate words (Noun + Adjective phrase), never 'Mypha'.</div>
+        </div>
+        <div class="entry-item">
+          <div class="entry-eng">Cha pie vs. Chapie</div>
+          <div class="entry-mara">'Cha pie' = Pronoun + Verb; 'Chapie' = standalone Verb (e.g., Football ei chapie).</div>
+        </div>
+        <div class="entry-item">
+          <div class="entry-eng">Aw vs. Awh</div>
+          <div class="entry-mara">'Aw' = Future tense marker (Ei nie aw); 'Awh' = Noun or Verb with lengthened sound.</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="view-editor" class="hidden">
+      <div class="panel">
+        <h2>Word Editor</h2>
+        <input id="newEnglish" class="form-input" type="text" placeholder="English meaning or phrase" />
+        <input id="newMara" class="form-input" type="text" placeholder="Mara word, idiom, or phrase" />
+        <input id="newDetail" class="form-input" type="text" placeholder="Optional note, meaning (chhopasiana), or example (hmâna)" />
+        <select id="newCategory" class="form-select">
+          <option value="Word Dictionary">Word Dictionary</option>
+          <option value="Mara Hlabie">Mara Hlabie</option>
+          <option value="Reih Machâpa / Nôpaw Biephôh">Reih Machâpa / Nôpaw Biephôh</option>
+          <option value="Cultural & Church">Cultural &amp; Church</option>
+        </select>
+        <button id="saveWordBtn" class="primary-btn" type="button">Save to App</button>
+        <button id="resetDataBtn" class="secondary-btn" type="button">Reset to Default Database</button>
+      </div>
+    </section>
+  </main>
+
+  <nav class="bottom-nav">
+    <button class="nav-btn active" data-nav="home" type="button">🏠<span>HOME</span></button>
+    <button class="nav-btn" data-nav="dictionary" type="button">📖<span>DICTIONARY</span></button>
+    <button class="nav-btn" data-nav="grammar" type="button">🎓<span>GRAMMAR</span></button>
+    <button class="nav-btn" data-nav="editor" type="button">✏️<span>EDITOR</span></button>
+  </nav>
 
   <script>
-    var DATA = [
-      { en: "I", mara: "kei", type: "word", cat: "Pronouns" },
-      { en: "you", mara: "Nâ", type: "word", cat: "Pronouns" },
-      { en: "he", mara: "ano, a", type: "word", cat: "Pronouns" },
-      { en: "she", mara: "ano, a", type: "word", cat: "Pronouns" },
-      { en: "we", mara: "eima, keimo", type: "word", cat: "Pronouns" },
-      { en: "they", mara: "ama, âmo", type: "word", cat: "Pronouns" },
-      { en: "what", mara: "khâpa", type: "word", cat: "Question words" },
-      { en: "where", mara: "Khataih lâ/liata", type: "word", cat: "Question words" },
-      { en: "who", mara: "tu", type: "word", cat: "Question words" },
-      { en: "to be", mara: "y, châ", type: "word", cat: "Verbs" },
-      { en: "to have", mara: "hnei", type: "word", cat: "Verbs" },
-      { en: "to do / to make", mara: "tao", type: "word", cat: "Verbs" },
-      { en: "to go", mara: "sie", type: "word", cat: "Verbs" },
-      { en: "to come", mara: "avy", type: "word", cat: "Verbs" },
-      { en: "to see / to find", mara: "hmô", type: "word", cat: "Verbs" },
-      { en: "to know", mara: "pahno", type: "word", cat: "Verbs" },
-      { en: "to eat", mara: "nie", type: "word", cat: "Verbs" },
-      { en: "to drink", mara: "doh", type: "word", cat: "Verbs" },
-      { en: "to sleep", mara: "amô", type: "word", cat: "Verbs" },
-      { en: "to say / to read / to speak", mara: "reih", type: "word", cat: "Verbs" },
-      { en: "person", mara: "chyhsa", type: "word", cat: "People" },
-      { en: "man", mara: "chapaw", type: "word", cat: "People" },
-      { en: "woman", mara: "chanô", type: "word", cat: "People" },
-      { en: "child", mara: "hawtipa", type: "word", cat: "People" },
-      { en: "mother", mara: "nô", type: "word", cat: "Family" },
-      { en: "father", mara: "paw", type: "word", cat: "Family" },
-      { en: "friend", mara: "viasa", type: "word", cat: "People" },
-      { en: "house / home", mara: "o", type: "word", cat: "Places" },
-      { en: "school", mara: "siku", type: "word", cat: "Places" },
-      { en: "world", mara: "khizaw", type: "word", cat: "Places" },
-      { en: "month", mara: "thla", type: "word", cat: "Time" },
-      { en: "year", mara: "kô", type: "word", cat: "Time" },
-      { en: "today", mara: "atanoh", type: "word", cat: "Time" },
-      { en: "tomorrow", mara: "mylâ", type: "word", cat: "Time" },
-      { en: "yesterday", mara: "zâhnia", type: "word", cat: "Time" },
-      { en: "sun", mara: "noh", type: "word", cat: "Nature" },
-      { en: "moon", mara: "thlâpâ", type: "word", cat: "Nature" },
-      { en: "star", mara: "awhsi", type: "word", cat: "Nature" },
-      { en: "fire", mara: "mei", type: "word", cat: "Nature" },
-      { en: "water", mara: "ti", type: "word", cat: "Nature" },
-      { en: "wind", mara: "thlih", type: "word", cat: "Nature" },
-      { en: "tree", mara: "thing", type: "word", cat: "Nature" },
-      { en: "rice", mara: "sâh", type: "word", cat: "Food" },
-      { en: "fish", mara: "ngasa", type: "word", cat: "Food" },
-      { en: "meat", mara: "sa", type: "word", cat: "Food" },
-      { en: "tea", mara: "thopi", type: "word", cat: "Food" },
-      { en: "head", mara: "luh", type: "word", cat: "Body" },
-      { en: "eye", mara: "mo", type: "word", cat: "Body" },
-      { en: "mouth", mara: "pakah", type: "word", cat: "Body" },
-      { en: "hand", mara: "ku", type: "word", cat: "Body" },
-      { en: "foot", mara: "phei", type: "word", cat: "Body" },
-      { en: "name", mara: "moh", type: "word", cat: "Objects/concepts" },
-      { en: "book", mara: "châbu", type: "word", cat: "Objects/concepts" },
-      { en: "word", mara: "bie", type: "word", cat: "Objects/concepts", note: "Alternative biesâ also supplied" },
-      { en: "money", mara: "phusâ", type: "word", cat: "Objects/concepts" },
-      { en: "work", mara: "rai", type: "word", cat: "Objects/concepts" },
-      { en: "good", mara: "pha", type: "word", cat: "Adjectives" },
-      { en: "bad", mara: "chhie, pha leipa", type: "word", cat: "Adjectives" },
-      { en: "big", mara: "lai", type: "word", cat: "Adjectives" },
-      { en: "small", mara: "tataw", type: "word", cat: "Adjectives" },
-      { en: "new", mara: "thieh", type: "word", cat: "Adjectives" },
-      { en: "old", mara: "paroh", type: "word", cat: "Adjectives" },
-      { en: "fast", mara: "chatlie", type: "word", cat: "Adjectives" },
-      { en: "slow", mara: "dusaw, nainôsô", type: "word", cat: "Adjectives" },
-      { en: "on top / above", mara: "chô liata", type: "word", cat: "Spatial" },
-      { en: "underneath / under", mara: "ry liata", type: "word", cat: "Spatial" },
-      { en: "inside", mara: "chhôh liata", type: "word", cat: "Spatial" },
-      { en: "above / higher up", mara: "Machha lâ", type: "word", cat: "Spatial" },
-      { en: "below / lower down", mara: "Mathi lâ", type: "word", cat: "Spatial" },
-      { en: "here", mara: "He liata", type: "word", cat: "Spatial" },
-      { en: "there", mara: "Hao liata", type: "word", cat: "Spatial" },
-      { en: "up there", mara: "Khi liata", type: "word", cat: "Spatial" },
-      { en: "down there", mara: "Khu liata", type: "word", cat: "Spatial" },
-      { en: "before / in front", mara: "Hmialâ", type: "word", cat: "Spatial" },
-      { en: "behind", mara: "Hnôh lâ / hnoh lâ", type: "word", cat: "Spatial" },
-      { en: "round about", mara: "chahlô", type: "word", cat: "Spatial" },
-      { en: "Bamboo shoot", mara: "Âteih", type: "word", cat: "Vegetables" },
-      { en: "Brinjal, Aubergine, Egg plant", mara: "Maityu, Babao", type: "word", cat: "Vegetables" },
-      { en: "Bean", mara: "Abiah, Bahly", type: "word", cat: "Vegetables" },
-      { en: "Bitter gourd/melon", mara: "Lâbua", type: "word", cat: "Vegetables" },
-      { en: "Cabbage", mara: "Chohlô", type: "word", cat: "Vegetables" },
-      { en: "Cauliflower", mara: "Âhrâpawhlô/Pawhlô", type: "word", cat: "Vegetables" },
-      { en: "Capsicum", mara: "Âhiahthawhpu laipa", type: "word", cat: "Vegetables" },
-      { en: "Chilli", mara: "Âhiah", type: "word", cat: "Vegetables" },
-      { en: "Chili Pepper", mara: "Âhiathawhpu", type: "word", cat: "Vegetables" },
-      { en: "Cucumber", mara: "Athei", type: "word", cat: "Vegetables" },
-      { en: "Garlic", mara: "Khâchhaorâhpa", type: "word", cat: "Vegetables" },
-      { en: "Ginger", mara: "Iahso", type: "word", cat: "Vegetables" },
-      { en: "Lady's finger", mara: "Âpahniahpa", type: "word", cat: "Vegetables" },
-      { en: "Maize, Corn", mara: "Chhâmeih", type: "word", cat: "Vegetables" },
-      { en: "Mustard", mara: "Âhrâ", type: "word", cat: "Vegetables" },
-      { en: "Onion", mara: "Khâchhaosaihpa", type: "word", cat: "Vegetables" },
-      { en: "Potato", mara: "Âlu", type: "word", cat: "Vegetables" },
-      { en: "Rice", mara: "Sâh, sahphâ.", type: "word", cat: "Food" },
-      { en: "Soyabeen", mara: "Barô", type: "word", cat: "Vegetables" },
-      { en: "Sweet Potato", mara: "Biabahra", type: "word", cat: "Vegetables" },
-      { en: "Tomato", mara: "Viahbabao", type: "word", cat: "Vegetables" },
-      { en: "Hi/Hello", mara: "Samaw", type: "sentence", cat: "Greetings & Daily" },
-      { en: "What is your name?", mara: "Na moh ahy maw?", type: "sentence", cat: "Greetings & Daily" },
-      { en: "My name is Nana", mara: "Ei moh cha Nana a châ.", type: "sentence", cat: "Greetings & Daily" },
-      { en: "How are you?", mara: "Na tlâh ma / Na pha ma?", type: "sentence", cat: "Greetings & Daily" },
-      { en: "I am fine", mara: "Ei tlâh/pha nona a châ.", type: "sentence", cat: "Greetings & Daily" },
-      { en: "Thank you", mara: "Ei châ ly", type: "sentence", cat: "Greetings & Daily" },
-      { en: "Where are you going?", mara: "Khataihlâ na vawh aw/na sie aw?", type: "sentence", cat: "Greetings & Daily" },
-      { en: "I'm going home", mara: "Ei di tua aw.", type: "sentence", cat: "Greetings & Daily" },
-      { en: "Can you speak Mara?", mara: "Mara reih na thai ma?", type: "sentence", cat: "Greetings & Daily" },
-      { en: "What are you doing?", mara: "Khâpa na tao?", type: "sentence", cat: "Greetings & Daily" },
-      { en: "Don't worry", mara: "Na pachâ aparôhsa khâ.", type: "sentence", cat: "Greetings & Daily" },
-      { en: "I love you", mara: "Kyh ei cha pachâ.", type: "sentence", cat: "Greetings & Daily" },
-      { en: "What is this?", mara: "He he khâpa maw?", type: "sentence", cat: "Commands & Questions" },
-      { en: "Be careful", mara: "A sohsi ma y.", type: "sentence", cat: "Commands & Questions" },
-      { en: "Follow me", mara: "Na vaw pazi tyh.", type: "sentence", cat: "Commands & Questions" },
-      { en: "Have you ever been to Siaha?", mara: "Siaha na tlô mâh ma?", type: "sentence", cat: "Commands & Questions" },
-      { en: "This is a cow.", mara: "He he viahchao a châ.", type: "sentence", cat: "Animals" },
-      { en: "This is a dog.", mara: "He he I a châ.", type: "sentence", cat: "Animals" },
-      { en: "This is a cat.", mara: "He he chhiezao a châ.", type: "sentence", cat: "Animals" },
-      { en: "This is my house.", mara: "He he ei O a châ.", type: "sentence", cat: "Home" },
-      { en: "I am going to Siaha.", mara: "Siaha lâ ei sie aw.", type: "sentence", cat: "Greetings & Daily" },
-      { en: "Who are you?", mara: "Ahy na châ?", type: "sentence", cat: "Greetings & Daily" },
-      { en: "I am a Tourist.", mara: "Khitlyhpa ei châ.", type: "sentence", cat: "Greetings & Daily" },
-      { en: "What is your father's name?", mara: "Na paw moh ahy maw?", type: "sentence", cat: "Family" },
-      { en: "My father's name is Khukhu.", mara: "Ei pâ moh cha Khukhu a châ.", type: "sentence", cat: "Family" },
-      { en: "Have you taken your meal?", mara: "Pati na nie haw?", type: "sentence", cat: "Food, Meals & Dining" },
-      { en: "Open the door", mara: "Ochhi pahy tyh.", type: "sentence", cat: "Commands & Questions" },
-      { en: "Shut the door", mara: "Ochhi khaw tyh.", type: "sentence", cat: "Commands & Questions" },
-      { en: "Good night", mara: "Mâ pha sy.", type: "sentence", cat: "Greetings & Daily" },
-      { en: "I do not know", mara: "Pahno na.", type: "sentence", cat: "Commands & Questions" },
-      { en: "Are you a Christian?", mara: "Krizyhpa na châ ma?", type: "sentence", cat: "Church Service & Faith" },
-      { en: "Yes, I am a Christian", mara: "Uh, Krizyhpa ei châ.", type: "sentence", cat: "Church Service & Faith" },
-      { en: "Are you a believer?", mara: "Ngiapâtuhpa na châ ma?", type: "sentence", cat: "Church Service & Faith" },
-      { en: "Yes, I go to church every Sunday", mara: "Uh, Khazohpanoh ta ei Pakhy tyh.", type: "sentence", cat: "Church Service & Faith" },
-      { en: "Where is your church located?", mara: "Khataih liata nama chhyna O a y?", type: "sentence", cat: "Church Service & Faith" },
-      { en: "Who is your Pastor?", mara: "Ahy ma nama Pastor?", type: "sentence", cat: "Church Service & Faith" },
-      { en: "Let's sing a song/hymn", mara: "Reithaina Hla vaw sa suh vy.", type: "sentence", cat: "Church Service & Faith" },
-      { en: "I will go to church", mara: "Ei Pakhy aw", type: "sentence", cat: "Church Service & Faith" },
-      { en: "Don't forget to pray", mara: "Thlahchhâ awpa my kha y.", type: "sentence", cat: "Church Service & Faith" },
-      { en: "Jesus loves you", mara: "Zisu ta kyh a cha pachâ", type: "sentence", cat: "Church Service & Faith" },
-      { en: "God is great", mara: "Khazohpa a rônah tlai na", type: "sentence", cat: "Church Service & Faith" },
-      { en: "Can you translate Bible verse for me?", mara: "Biehrai châh eina paliepa thei chi ma?", type: "sentence", cat: "Church Service & Faith" }
+    const STORAGE_KEY = "mara_translator_entries_v3";
+
+    const defaultEntries = [
+      // Core Dictionary & Daily Phrases
+      { english: "Good morning", mara: "Mâ pha sy.", detail: "", category: "Word Dictionary" },
+      { english: "Hi/Hello", mara: "Samaw", detail: "", category: "Word Dictionary" },
+      { english: "What is your name?", mara: "Na moh ahy maw?", detail: "", category: "Word Dictionary" },
+      { english: "My name is Nana", mara: "Ei moh cha Nana a châ.", detail: "", category: "Word Dictionary" },
+      { english: "How are you?", mara: "Na tlâh ma/Na pha ma?", detail: "", category: "Word Dictionary" },
+      { english: "I am fine", mara: "Ei tlâh/pha nona a châ.", detail: "", category: "Word Dictionary" },
+      { english: "You're beautiful", mara: "Na hmipha kaw", detail: "", category: "Word Dictionary" },
+      { english: "Thank you", mara: "Ei châ ly", detail: "", category: "Word Dictionary" },
+      { english: "Have a nice day", mara: "Noh hmâ pha sy", detail: "", category: "Word Dictionary" },
+      { english: "How old are you?", mara: "Kô khazie na châ?", detail: "", category: "Word Dictionary" },
+      { english: "I'm 15 years old", mara: "Kô 15 ei châ.", detail: "", category: "Word Dictionary" },
+      { english: "Where are you going?", mara: "Khataihlâ na vawh aw/na sie aw?", detail: "", category: "Word Dictionary" },
+      { english: "I'm going home", mara: "Ei di tua aw.", detail: "", category: "Word Dictionary" },
+      { english: "Where are you from?", mara: "Khataihpa na châ?", detail: "", category: "Word Dictionary" },
+      { english: "I am from Siaha", mara: "Siaha-pa ei châ.", detail: "", category: "Word Dictionary" },
+      { english: "Can you speak Mara?", mara: "Mara reih na thai ma?", detail: "", category: "Word Dictionary" },
+      { english: "Yes, I can speak", mara: "Uh, ei thai.", detail: "", category: "Word Dictionary" },
+      { english: "What are you doing?", mara: "Khâpa na tao?", detail: "", category: "Word Dictionary" },
+      { english: "Are you busy?", mara: "Na bua ma?", detail: "", category: "Word Dictionary" },
+      { english: "I am busy", mara: "Ei bua chy / Ei phiapahri ngâ kaw.", detail: "", category: "Word Dictionary" },
+      { english: "Don't worry", mara: "Na pachâ aparôhsa khâ.", detail: "", category: "Word Dictionary" },
+      { english: "Do you love me?", mara: "Kyh eina pachâ chi ma?", detail: "", category: "Word Dictionary" },
+      { english: "I love you", mara: "Kyh ei cha pachâ", detail: "", category: "Word Dictionary" },
+      { english: "I miss you", mara: "Ei cha vâ.", detail: "", category: "Word Dictionary" },
+      { english: "I have to go", mara: "Ei vaw'pa nah byuh ha", detail: "", category: "Word Dictionary" },
+      { english: "What do you want?", mara: "Khâpa na kho?", detail: "", category: "Word Dictionary" },
+      { english: "I'm hungry", mara: "Ei no a di", detail: "", category: "Word Dictionary" },
+      { english: "I'm sorry", mara: "Ei tao tlamaw", detail: "", category: "Word Dictionary" },
+      { english: "It is raining now", mara: "Vâ a sua", detail: "", category: "Word Dictionary" },
+      { english: "It is going to rain", mara: "Avâ a suah aw.", detail: "", category: "Word Dictionary" },
+      { english: "I'm feeling hot", mara: "A palo ei tah", detail: "", category: "Word Dictionary" },
+      { english: "I'm feeling cold", mara: "A chasi ei tah", detail: "", category: "Word Dictionary" },
+      { english: "It is very expensive", mara: "A mâ ru kaw na", detail: "", category: "Word Dictionary" },
+      { english: "Let's go to the market", mara: "Bazar lâ vawh sih / vawh s'u", detail: "", category: "Word Dictionary" },
+      { english: "What is this?", mara: "He he khâpa maw?", detail: "", category: "Word Dictionary" },
+      { english: "Be careful", mara: "Asohsi mah y.", detail: "", category: "Word Dictionary" },
+      { english: "Stand up!", mara: "Aduah tyh!", detail: "", category: "Word Dictionary" },
+      { english: "Why are you laughing?", mara: "Khazia na pahneih?", detail: "", category: "Word Dictionary" },
+      { english: "Why are you crying?", mara: "Khazia na cha?", detail: "", category: "Word Dictionary" },
+      { english: "Follow me.", mara: "Na vaw pazi tyh.", detail: "", category: "Word Dictionary" },
+      { english: "Open the door", mara: "Ochhi pahy tyh.", detail: "", category: "Word Dictionary" },
+      { english: "Close the door", mara: "Ochhi khaw tyh.", detail: "", category: "Word Dictionary" },
+      { english: "I do not know", mara: "Pahno na.", detail: "", category: "Word Dictionary" },
+      { english: "On top, above", mara: "chô liata", detail: "", category: "Word Dictionary" },
+      { english: "Underneath, under", mara: "ry liata", detail: "", category: "Word Dictionary" },
+      { english: "Inside", mara: "chhôh liata", detail: "", category: "Word Dictionary" },
+      { english: "Here", mara: "He liata", detail: "", category: "Word Dictionary" },
+      { english: "There", mara: "Hao liata", detail: "", category: "Word Dictionary" },
+      { english: "Where?", mara: "Khataih lia?", detail: "", category: "Word Dictionary" },
+      { english: "Before, in front", mara: "Hmialâ", detail: "", category: "Word Dictionary" },
+      { english: "Behind", mara: "Hnôh lâ", detail: "", category: "Word Dictionary" },
+
+      // Cultural & Church / Market
+      { english: "Are you a Christian?", mara: "Krizyhpa na châ ma?", detail: "", category: "Cultural & Church" },
+      { english: "Yes, I am a Christian", mara: "Uh, Krizyhpa ei châ.", detail: "", category: "Cultural & Church" },
+      { english: "Do you go to Church?", mara: "Nâ Pakhy beih ma?", detail: "", category: "Cultural & Church" },
+      { english: "Who is your Pastor?", mara: "Ahy ma nama Pastor?", detail: "", category: "Cultural & Church" },
+      { english: "Let's sing a hymn", mara: "Reithaina Hla vaw sa suh vy.", detail: "", category: "Cultural & Church" },
+      { english: "Do you have a hymn book?", mara: "Hla bu nama hnei ma?", detail: "", category: "Cultural & Church" },
+      { english: "Jesus loves you", mara: "Zisu ta kyh a cha pachâ", detail: "", category: "Cultural & Church" },
+      { english: "God is great", mara: "Khazohpa a rônah tlai na", detail: "", category: "Cultural & Church" },
+      { english: "Praise the Lord", mara: "Abeipa cha reithaipa ta y mawh sy", detail: "", category: "Cultural & Church" },
+      { english: "Do you have fresh vegetables?", mara: "Âhnalasipa thiehhlâh kawpa na hnei ma?", detail: "", category: "Cultural & Church" },
+      { english: "What is the rate of tomato?", mara: "Tômatô he khazie maw?", detail: "", category: "Cultural & Church" },
+      { english: "15 rupees per Kg", mara: "Kg 1 ta tlaw 15.", detail: "", category: "Cultural & Church" },
+      { english: "40 rupees per Kg", mara: "Kg 1-ta tlaw 40", detail: "", category: "Cultural & Church" },
+      { english: "Give me two Kgs of tomato", mara: "Tomato kg 2 na vaw pie tua.", detail: "", category: "Cultural & Church" },
+      { english: "Give me one kg of onions", mara: "Khâchhao saihpa kg 1 na vaw pie tua.", detail: "", category: "Cultural & Church" },
+      { english: "Bitter gourd", mara: "Lâbua", detail: "", category: "Cultural & Church" },
+      { english: "Snake gourd", mara: "Awhhnie-ôh", detail: "", category: "Cultural & Church" },
+      { english: "Cauliflower", mara: "Âhrâpawhlô", detail: "", category: "Cultural & Church" },
+      { english: "Cabbage", mara: "Chohlô", detail: "", category: "Cultural & Church" },
+      { english: "Potato", mara: "Âlu", detail: "", category: "Cultural & Church" },
+      { english: "Tomato", mara: "Viahbabao", detail: "", category: "Cultural & Church" },
+      { english: "Onion", mara: "Khâchhaosaihpa", detail: "", category: "Cultural & Church" },
+      { english: "Garlic", mara: "Khâchhaorâhpa", detail: "", category: "Cultural & Church" },
+      { english: "Ginger", mara: "Iahso", detail: "", category: "Cultural & Church" },
+      { english: "Brinjal", mara: "Maityu", detail: "", category: "Cultural & Church" },
+      { english: "Cucumber", mara: "Athei", detail: "", category: "Cultural & Church" },
+      { english: "Pumpkin", mara: "Mawmythei", detail: "", category: "Cultural & Church" },
+
+      // Mara Hlabie (28 Poetic Entries)
+      { english: "Death, passing away, eternal rest (Thina lytlâh)", mara: "Bôhzyu lytlâh", detail: "Pamosana: Bôhzyu lytlâh miah khôsai ha hra la | Chhopasiana: Miah thisai/a pahâsai ha hra la.", category: "Mara Hlabie" },
+      { english: "Child, little children (Saw / hawti)", mara: "Nawhhly", detail: "Pamosana: Nawhhly hawh pahneisilihpa ta akaokhoh pi. | Chhopasiana: Hawti/hawsaihpazy thapha alypa ta ama y tyhpa hawhta nâma nahta eima chareikhoh no kha thapha alypa ta pahneikhoh tyh hra pi.", category: "Mara Hlabie" },
+      { english: "Inner heart, soul, deepest thoughts (Palôhrupa)", mara: "Chhôhso", detail: "Pamosana: Chhôhso lia khâ cha rohpady tyh na | Chhopasiana: Ei palôhrupa liata khatinorai ta ei cha pachâ ngâthlâh ha tyh.", category: "Mara Hlabie" },
+      { english: "Beloved village, hometown (Khih, pahrâna su)", mara: "Khihbôhpi", detail: "Pamosana: Ei khihbôhpi lia lailâhzy nah pahneisilihna chô akaokhoh pi. | Chhopasiana: Eima khih liata ei viasazy nahta Aly thapha kawpa ta chareikhoh pi ta.", category: "Mara Hlabie" },
+      { english: "Sweet, gentle, kind words (Reikah phapa)", mara: "Lyuhbie naizualuah", detail: "Pamosana: Lyuhbie naizualuah na hlâ la kei lôh ly n'awpa ta. | Chhopasiana: Reikah pha kawpa ta bie nâ chho la Aly thaphapa ta ei y n'awpa ta.", category: "Mara Hlabie" },
+      { english: "Sleeping peacefully (Mokuh pahâh kawpa ta a môpa)", mara: "Mokuh ramâ khaih", detail: "Pamosana: Khataihlia ma mokuh ramâ na khaih ha tly lôh ei du chainô? | Chhopasiana: Ei khochaipa khataihlia ma mokuh pahâh kawpa ta nâ mô ha tly?.", category: "Mara Hlabie" },
+      { english: "Foreign land, distant village (Khih hropa, maniahpa khih)", mara: "Molâh kithlaoh", detail: "Pamosana: Molâh kithlaoh hry lia laphôh to thlu hr'eisi. | Chhopasiana: Maniah khih/khihro râhhropa liata bieto biezaw, thaina sona to achupa ta/reihpa ta y hra ei suh u.", category: "Mara Hlabie" },
+      { english: "Peace of mind, heart's ease (Palôhtlâhpa)", mara: "Khiahlôtlâh", detail: "Pamosana: Khiahlô rai za tlâh thei vei. | Chhopasiana: Palôh rai tlâh thei vei.", category: "Mara Hlabie" },
+      { english: "Deep longing, missing someone dearly (Vâna)", mara: "Thângiahna", detail: "Pamosana: Na thângiah lôhlie raithlih palo laihna. | Chhopasiana: Ei cha vâ tu hapa vâta palôh a lie kawpa ei mothlih ei pathla tyh.", category: "Mara Hlabie" },
+      { english: "Every single day, daily (Noh chareih, nohto)", mara: "Nohlychhiki", detail: "Pamosana: Nohlychhiki akaokhoh ei sih. | Chhopasiana: Noh chareih, nohto ta chareikhoh/ykhoh/apakyh sih y.", category: "Mara Hlabie" },
+      { english: "News, story, tidings (Thâtih)", mara: "Thâlia", detail: "Pamosana: Dinô na thâlia reih na ai vei. | Chhopasiana: Laihsa na thâtih rei na ai vei.", category: "Mara Hlabie" },
+      { english: "Destined lovers, soulmates (Akhohpa ta ahneipa)", mara: "Sâhmia pati", detail: "Pamosana: Nâ nah kei Sâhmia pati châ tlôh pi. | Chhopasiana: Nâ nata keima la akhohpa ta ahneipa châ tlôh pi ta.", category: "Mara Hlabie" },
+      { english: "Young maiden, unmarried young woman (Richâh khapa laihsa)", mara: "Lailâh pawmaih", detail: "Pamosana: Lailâh pawmaihzy hry lia. | Chhopasiana: Richâh khapa, ei viasa chanô/laihsazy hry liata.", category: "Mara Hlabie" },
+      { english: "Every night, night after night (Zâ chareih, zâ tota)", mara: "Hâzo chhiki", detail: "Pamosana: Hâzo chhiki châ ngiah tyh na. | Chhopasiana: Zâ chareih/zâ daihti a vaw tlôna maih cha vâ tyh na ta.", category: "Mara Hlabie" },
+      { english: "Throughout one's lifetime (Hrochhôh ta)", mara: "Hrozô chhâ lia", detail: "Pamosana: Hrozô chhâ lia ch'aw my aw vana. | Chhopasiana: Ei hrochhôh ta ch'aw my vana.", category: "Mara Hlabie" },
+      { english: "Bed, resting place (Bed / Rakhô)", mara: "Khôpheih", detail: "Pamosana: Khôpheih chô tawh cha vaw rohpady na. | Chhopasiana: Rakhô chô tawhta cha vaw pachâ tyh na ta.", category: "Mara Hlabie" },
+      { english: "Heartache, sorrow, troubled heart (Palôh pasa)", mara: "Lôhhiah", detail: "Pamosana: Lôhhiahna chô na thâ eimâ ngiah tyh | Chhopasiana: Palôh pasa kawna chôta eima cha vaw vâ kaw tyh/eima cha vâ kaw tyh.", category: "Mara Hlabie" },
+      { english: "May it be forgotten (Vaw my thlâh ha bâ lahvâ na)", mara: "Mythâpaw châ sala", detail: "Pamosana: Lôhdunô kha la mythâpaw châ bâ sala. | Chhopasiana: Ei khonô, ei vâ-iapa kha tlâ my thlâh ha bâ lahvâ na.", category: "Mara Hlabie" },
+      { english: "Heavy rain, pouring rain (Vâsuapa)", mara: "Vâpiati", detail: "Pamosana: Raithlih vâpiati hawh a loh. | Chhopasiana: Ei mothlih vâ suapa hawh a loh/a tla (Parawpachawna).", category: "Mara Hlabie" },
+      { english: "You would surely have been mine (Ei cha hnei awpa tlai)", mara: "Ei châ ti awpa tlai", detail: "Pamosana: Thyudyupaw nah araoh mawh sihla ei châ ti awpa tlai. | Chhopasiana: Chanô hawti kaw chypa/thyudyupa châ ha vei mawh la cha, (â richâhkhapa châ ha mawh sihla) cha ei cha hnei h'awpa tlai.", category: "Mara Hlabie" },
+      { english: "Becoming a stranger (Hmia pahno beih leipa hawhta y)", mara: "Mohtlei", detail: "Pamosana: Khazia motleih eina châsai chi. | Chhopasiana: Khazia hmia pahno beih leipa hawhta eina ysai chi, Khazia dyh hro eina châsai chi.", category: "Mara Hlabie" },
+      { english: "Leaving for another love (Khopa hropa hneisai, achhaih)", mara: "Lâ tlei", detail: "Pamosana: Lâ eina tleisai ha tawh chi khazia lyuhbie ei n'aw hlâ heih chi? | Chhopasiana: Khazia einâ chhaih/khopa hropa eina hneisai tawh chi ta, bie einâ vaw chho heih chi.", category: "Mara Hlabie" },
+      { english: "Words of love, sweet speech (Bie, bie phapa)", mara: "Lyuhbie", detail: "Pamosana: Nâ nah kei lyuhbie hlâ aryh khao vei. | Chhopasiana: Nâ nata keima la bie achho awpa pathaih khao vei/achho thei awpa châ khao ma pi.", category: "Mara Hlabie" },
+      { english: "One who loves or desires you (Cha khohpa)", mara: "Lôh châ dupa", detail: "Pamosana: Apalai tu kha y hy laihsa, lôh châ dupa rai y vei ei. | Chhopasiana: Apalai tu kha y hy laihsa, cha khohtuhpa/nâma cha khohpa rai y vei ei.", category: "Mara Hlabie" },
+      { english: "Strolling, wandering, visiting around (Sievawh laih, khitlyh)", mara: "Valâzoh", detail: "Pamosana: Valâ ei zohna maih na hnazô atyh awpa y tlôh vâ. | Chhopasiana: Ei khiekhâna/chareina/khitlyhna lia maih, na hmia hmô awpa y tlôh vâ.", category: "Mara Hlabie" },
+      { english: "Conversing along the pathway (Lâpi liata bie a chho)", mara: "Lâpôh lyuhbie chho", detail: "Pamosana: Lâpôh lyuhbie dei he ma ei tovyuh. | Chhopasiana: Khiliah/lâpi/lâthlôh liata bie eimâ chhopa dei he mâ keima châta â daih/ei tovyuh.", category: "Mara Hlabie" },
+      { english: "Walking, stepping forward (Sie, phei ta chakâpa)", mara: "Pheiliah hai", detail: "Pamosana: Lôhdu pheiliah a haina lâ valâ ei zoh aw. | Chhopasiana: Ei khopa chareina lâ/Siena lâ ei khiekhâ/ei vawh ha hra aw.", category: "Mara Hlabie" },
+      { english: "Youthful beauty, radiance (Lochona, hmiphana)", mara: "Meihkia", detail: "Pamosana: Meihkia lo ta hnazô tleih khai ha hrasala. | Chhopasiana: Lochona/ thyutliana/hmiphana zy vaw y khao leipa ta eima hmisâ zy vaw machâ khai ha hrasala", category: "Mara Hlabie" },
+
+      // Reih Machâpa / Nôpaw Biephôh (Idioms, Proverbs, Formal & Refined Speech)
+      { english: "To encourage / To lift one's spirits", mara: "Palôhrupa pahlei", detail: "Nôpaw Biephôh — Idiom", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "To be patient / To bear with", mara: "Pachâ raihriapa", detail: "Nôpaw Biephôh — Idiom", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "To speak behind one's back", mara: "Hnôhlâ ta reih", detail: "Nôpaw Biephôh — Idiom", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "To agree / To be of one mind", mara: "Palôh pakha ta y", detail: "Nôpaw Biephôh — Idiom", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "To lose hope", mara: "Ahnabeiseih pahlei", detail: "Nôpaw Biephôh — Idiom", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "To be very happy / Overjoyed", mara: "Palôh a ly kaw", detail: "Nôpaw Biephôh — Idiom", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "To be proud (arrogant)", mara: "Pachâ pasôh", detail: "Nôpaw Biephôh — Idiom", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "To make peace", mara: "Reih papakha", detail: "Nôpaw Biephôh — Idiom", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "To start a quarrel", mara: "Bie papua", detail: "Nôpaw Biephôh — Idiom", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Blood is thicker than water", mara: "Thlih he ti hlâta â hlao via", detail: "Nôpaw Biephôh — Proverb", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Look before you leap", mara: "Hmia lâta reih la, hnôh lâta rah teh", detail: "Nôpaw Biephôh — Proverb", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Welcome (to our home/gathering)", mara: "Avy u / Avy thlâh ha u", detail: "Reih Machâpa — Formal", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Please sit down (singular/plural)", mara: "Tyuh teh / Tyuh u", detail: "Reih Machâpa — Formal", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Have you arrived safely?", mara: "Na vaw tlô haw maw?", detail: "Reih Machâpa — Formal", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Yes, I have arrived safely", mara: "Uh, ei vaw tlô ha", detail: "Reih Machâpa — Formal", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Excuse me (to pass or interrupt)", mara: "Ngiachhiepa ta", detail: "Reih Machâpa — Formal", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Please wait a moment", mara: "Daihti chyhta vaw hmiapa teh", detail: "Reih Machâpa — Formal", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "What can I do for you?", mara: "Khâpa ei cha taopa thei aw?", detail: "Reih Machâpa — Formal", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Please repeat what you said", mara: "Na reih kha vaw reih heih teh", detail: "Reih Machâpa — Formal", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Do you understand? (Polite)", mara: "Na chhopasia ma?", detail: "Reih Machâpa — Formal", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Yes, I understand / I don't understand", mara: "Uh, ei chhopasia / Ei chhopasia vei", detail: "Reih Machâpa — Formal", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Would you like some water?", mara: "Ti na do kho ma?", detail: "Reih Machâpa — Formal", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Thank you very much (polite blessing)", mara: "Nohkha na ta byhnâ cha pie sy", detail: "Reih Machâpa — Formal", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "It is my pleasure / You are welcome", mara: "Ei châ ly kaw", detail: "Reih Machâpa — Formal", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Goodbye (to those staying)", mara: "Pahrâ pha u", detail: "Reih Machâpa — Formal", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Goodbye (to those leaving)", mara: "Sie pha u", detail: "Reih Machâpa — Formal", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Let us meet again", mara: "Eimâ hmô heih aw", detail: "Reih Machâpa — Formal", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "I am very grateful to you", mara: "Na chô liata ei ly ngaita kaw", detail: "Reih Machâpa — Polite", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "It does not matter / Never mind", mara: "A sia vei / Pachâ kha y", detail: "Reih Machâpa — Polite", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Please forgive me for my mistake", mara: "Ei tao tlamaw ngiachhiepa ta pahno kha y", detail: "Reih Machâpa — Polite", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Do not trouble yourself", mara: "Na sasyh pasai kha y", detail: "Reih Machâpa — Polite", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Take care of your health", mara: "Na thlâhpa pachâ teh", detail: "Reih Machâpa — Polite", category: "Reih Machâpa / Nôpaw Biephôh" },
+
+      // Additional Reih Machâpa & Nôpaw Biephôh batches
+      { english: "Lahuah (Vyhhai)", mara: "Vyhhai", detail: "lahuah", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Vahtiepa ti (Vahpiati)", mara: "Vahpiati", detail: "vahtiepa ti", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Zawpi (Zasâh)", mara: "Zasâh", detail: "zawpi", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Dâh, sidia, dâhkarie (Ziahziroh)", mara: "Ziahziroh", detail: "dâh, sidia, dâhkarie", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Sâh (Viahsi)", mara: "Viahsi", detail: "sâh", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Atuh râhhmâhpa / Thothih râhhmâhpa (Tuhpi)", mara: "Tuhpi", detail: "Atuh râhhmâhpa / Thothih râhhmâhpa", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Saw (Saliah)", mara: "Saliah", detail: "saw", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Sahma (Sâhti / Sâhtinô)", mara: "Sâhti / Sâhtinô", detail: "sahma", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Thâchhie (Sikhôh)", mara: "Sikhôh", detail: "thâchhie", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Thâchhie reih / biethâh hluh (Sikhôh pameih)", mara: "Sikhôh pameih", detail: "thâchhie reih/biethâh hluh", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Areisina, apanawhna (Raih-rao)", mara: "Raih-rao", detail: "Areisina, apanawhna", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Pavaw moh (Riela)", mara: "Riela", detail: "pavaw moh", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Noh (Sun) (Noh-lynô)", mara: "Noh-lynô", detail: "Noh (Sun)", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Lâpi, lâlai (Lâpôh)", mara: "Lâpôh", detail: "lâpi, lâlai", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Viahpa, râh hropa chyhsa (Kalâ)", mara: "Kalâ", detail: "viahpa, râh hropa chyhsa", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Satlia-laihsa daihti chhôh, locho daihti (Huasua)", mara: "Huasua", detail: "satlia-laihsa daihti chhôh, locho daihti", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Zâ tota, zâ a vaw châna maih ta (Hâhzo chhiki)", mara: "Hâhzo chhiki", detail: "zâ tota, zâ a vaw châna maih ta", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Chanô vahpa ahnei hapa/chiehpa (Dyh-nô)", mara: "Dyh-nô", detail: "Chanô vahpa ahnei hapa/chiehpa", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Ochhôh (Chhôhhno)", mara: "Chhôhhno", detail: "Ochhôh", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Râh akhiena, râh siena (Râhchuahna)", mara: "Râhchuahna", detail: "râh akhiena, râh siena", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Asosâh, hmahsie (Cha-awchalaipawh)", mara: "Cha-awchalaipawh", detail: "Asosâh, hmahsie", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Râh ahlapa, maniahpa khih, maniahpa râh (Kithlao)", mara: "Kithlao", detail: "râh ahlapa, maniahpa khih, maniahpa râh", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Mathlai (Thlaisâh / Thlaisâhtinô)", mara: "Thlaisâh / Thlaisâhtinô", detail: "mathlai", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Mathlai loh (Bâhzaolao)", mara: "Bâhzaolao", detail: "mathlai loh", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Châ, châ achupa (Châdi)", mara: "Châdi", detail: "châ, châ achupa", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Sawhkhâ (Chaozâh)", mara: "Chaozâh", detail: "sawhkhâ", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "O sapa (Opi pazawh)", mara: "Opi pazawh", detail: "O sapa reina", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Hmo asâh kawpa, nohi chhih kawpa (Tyu vili)", mara: "Tyu vili", detail: "Hmo asâh kawpa, nohi chhih kawpa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Pasipasawhna reihkah (Tapi tahly)", mara: "Tapi tahly", detail: "Pasipasawhna reihkah.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Bie taothi tao hlai ta pahawhsâhsa, chybâlâkhâ (Tliahrei tliada)", mara: "Tliahrei tliada", detail: "Bie taothi tao hlai ta pahawhsâhsa, chybâlâkhâ a châpa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Phahnai tlôhlei, riethei khei kaw tlôhpa (Thlachho biabô)", mara: "Thlachho biabô", detail: "Phahnai tlôhlei, riethei khei kaw tlôhpa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Hmo hneipa pabohsa awpa ta châhrôhpa (Thaw hrâkâ)", mara: "Thaw hrâkâ", detail: "Hmo hneipa pabohsa awpa ta châhrôhpa", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "A châhta ta a vaw lâ tyhpa, vaw chareipa (Thlâpâ hawhta dieh)", mara: "Thlâpâ hawhta dieh", detail: "A châhta ta a vaw lâ tyhpa. Vaw chareipa", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Vâhneipa, byhnâ topa (Thlaochhipa)", mara: "Thlaochhipa", detail: "Vâhneipa, byhnâ topa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Vâchhiepa, thina atyh hohpa (Thyu chhie)", mara: "Thyu chhie", detail: "Vâchhiepa, thina atyh hohpa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Pilâhpa, thyulâhpa (Thyuhrei)", mara: "Thyuhrei", detail: "Pilâhpa, thyulâhpa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Lahpinô a pahawh, hiah, thuasoh soh (Theithlaluah)", mara: "Theithlaluah", detail: "Lahpinô a pahawh, hiah, thuasoh soh.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Kaolâh, lahpinô, vahpa, Narô (Thlahrei)", mara: "Thlahrei", detail: "Kaolâh, lahpinô, vahpa, Narô.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Nie a phahlapa (Tichho pavia)", mara: "Tichho pavia", detail: "Nie a phahlapa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Keihhmi (Vuhrâpa)", mara: "Vuhrâpa", detail: "Keihhmi", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Hawti tua khipa (Awhvia thiekhi)", mara: "Awhvia thiekhi", detail: "Hawti tua khipa", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Khih yna, khih (Bôhpi)", mara: "Bôhpi", detail: "Khih yna, khih", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Pahsi, daihti rei (Bohpi)", mara: "Bohpi", detail: "Pahsi, daihti rei", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Lyu, tôhi (Lyubô)", mara: "Lyubô", detail: "Lyu, tôhi", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Chariah ta a pamua / ama thie khai hapa chhôhkha (Chakoh pathla)", mara: "Chakoh pathla", detail: "Chariah ta a pamua/ama thie khai hapa chhôhkha reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Cha ngâthlâh hapa (Chari thlaoh)", mara: "Chari thlaoh", detail: "Cha ngâthlâh hapa reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Aboh lymâ sala (Chhobu râhpâh ahli)", mara: "Chhobu râhpâh ahli", detail: "Aboh lymâ sala, tahna", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Hmo paroh kawpa, hlâno hmo (Dawmâ chhâ)", mara: "Dawmâ chhâ", detail: "Hmo paroh kawpa, hlâno hmo reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Dyutlai leipa (O pazu patu leipa)", mara: "O pazu patu leipa", detail: "Dyutlai leipa reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Hâkô nata kô heihpa, mylâ hânoh (Hâkô kavei)", mara: "Hâkô kavei", detail: "Hâkô nata kô heihpa, mylâ hânoh reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Apalypa-uasa (Haosaisa)", mara: "Haosaisa", detail: "Apalypa-uasa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Su kha liata khâ ypa, chareina pasie leipa (I ta khaoh hmô)", mara: "I ta khaoh hmô", detail: "Su kha liata khâ ypa, chareina pasie leipa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Vâsâh nôpo kaolaopa (Vânô vâsâh paza)", mara: "Vânô vâsâh paza", detail: "Vâsâh nôpo kaolaopa reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Vâsâh ngaitapa, nôpo ngaitapa (Vâsâh lôtlao khaoh / Vâpi chothlupa hawh)", mara: "Vâsâh lôtlao khaoh / Vâpi chothlupa hawh", detail: "Vâsâh ngaitapa, nôpo ngaitapa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Vâhnei kawpa, alychhih kawpa (Vâly iasoh)", mara: "Vâly iasoh", detail: "Vâhnei kawpa, alychhih kawpa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Sivâpha, byhnâ to kawpa (Vâpi ta sa)", mara: "Vâpi ta sa", detail: "Sivâpha, byhnâ to kawpa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Byhnâ a keina (Vânoh sahlâh)", mara: "Vânoh sahlâh", detail: "Byhnâ a keina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "A phathipa ta raihria leipa (Vialeipathi)", mara: "Vialeipathi", detail: "A phathipa ta raihria leipa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "O phathipa hneileipa ta chyhsa sawvâzy liata a tlô laihpa (Valâtla hawh)", mara: "Valâtla hawh", detail: "O phathipa hneileipa ta chyhsa sawvâzy liata a tlô laihpa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Bierei a chhaodaolaoh kaw tlôh ta reih hmeiseih thai tlôh leipa (Va â hawhta)", mara: "Va â hawhta", detail: "Bierei a chhaodaolaoh kaw tlôh ta reih hmeiseih thai tlôh leipa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Alypa nata aly leipa y pahlaopa (Vâ ua bâ, lei naih bâ)", mara: "Vâ ua bâ, lei naih bâ", detail: "Alypa nata aly leipa y pahlaopa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Vânoh pathluah (Biechhie reih, siasa)", mara: "Vânoh pathluah", detail: "Biechhie reih, siasa", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Khazohpa taopa a olo ta a ypa, râhhmâhpa (Pachhâhpa kumâ)", mara: "Pachhâhpa kumâ", detail: "Khazohpa taopa a olo ta a ypa, râhhmâhpa reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Hrohpareih, hrohpasîhpa (Pakhu kâh bie)", mara: "Pakhu kâh bie", detail: "Hrohpareih, hrohpasîhpa", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Paphôhpa (Paphôh palyuh / Paphôh paphâ)", mara: "Paphôh palyuh / Paphôh paphâ", detail: "Paphôhpa reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Hmo chyhpa, lai tu leipa (Pavaw mokhaoh tie)", mara: "Pavaw mokhaoh tie", detail: "Hmo chyhpa, lai tu leipa reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Saw pih ahniapa, kôchareih ta apihpa (Pachih paro hmô)", mara: "Pachih paro hmô", detail: "Saw pih ahniapa, kôchareih ta apihpa reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Reipachhienazy, reipasipasuanazy dao (Pachih padâh dao)", mara: "Pachih padâh dao", detail: "Reipachhienazy, reipasipasuanazy dao.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Sanawh hrihruah hnei hluhpa (Phaopi bâhpi thyu)", mara: "Phaopi bâhpi thyu", detail: "Sanawh hrihruah hnei hluhpa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Phahla kawpa ta khihsapa, adaihkhyh leipa (Phachho phachhâ)", mara: "Phachho phachhâ", detail: "Phahla kawpa ta khihsapa, adaihkhyh leipa", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Ato nie awpa akhoh thlâhpa, nie awpa ta a aoh byuhna ahneipâ kawpa (Pahâpahaoh / Parôpachaw)", mara: "Pahâpahaoh / Parôpachaw", detail: "Ato nie awpa akhoh thlâhpa, nie awpa ta a aoh byuhna ahneipâ kawpa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Hmo chi nanopazy lapakhy ta pahlaopahli ta, akhi leipa pakhi awpa ta la pakhy (Pakhy padai / Pahly pahli)", mara: "Pakhy padai / Pahly pahli", detail: "Hmo chi nanopazy lapakhy ta pahlaopahli ta, akhi leipa pakhi awpa ta la pakhy.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Bie to bie zaw a reihpa, hmotaopa a mih tlaoh kawpa ta a taopa (Patlao pamih / Patlao pa ai)", mara: "Patlao pamih / Patlao pa ai", detail: "Bie to bie zaw a reihpa, hmotaopa a mih tlaoh kawpa ta a taopa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Bierei athao, reih pathao (Pathlâpazia)", mara: "Pathlâpazia", detail: "Bierei athao, reih pathao.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Paphôh palyuh, reipasipasua (Pachia pachô)", mara: "Pachia pachô", detail: "Paphôh palyuh, reipasipasua", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Palôh chhiena nata akokâna hnei leipa (Patlâ patlô)", mara: "Patlâ patlô", detail: "Palôh chhiena nata akokâna hnei leipa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Ahryuh khaota paphôh ngâthlâhpa (Pazu ôkaw reih)", mara: "Pazu ôkaw reih", detail: "Ahryuh khaota paphôh ngâthlâhpa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Aly hmia phaoh lei, pachârôh hmia phaoh (Phua phuahsa)", mara: "Phua phuahsa", detail: "Aly hmia phaoh lei, pachârôh hmia phaoh", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Working without good results (Matho thâpha hlao lei; hmâhkhy thâpha hlao lei)", mara: "Matho thâpha hlao lei; hmâhkhy thâpha hlao lei", detail: "Yna ziana hnei khao leipa hârapazy he chyhsa hnohta zy y ei ta; chahawhpazy cha 'Matho' tlyma 'Mahua' tahpa ama châ. Raihria pasa kaw tyh hra ei sala thâpha hlao thei tyh vei ei. Hmâhkhy chhao pazu pavawzy vi ngâkaw tyh hrasala thâpha hlao leipa ta, 'Vi bao vei' tahpa a châ tyh.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Acting late after the proper time (Noh tla chy ta sâh zawh)", mara: "Noh tla chy ta sâh zawh", detail: "Hmo thlai tao awpa tao leipa ta, noh-ykha y chakhyh ta, noh liahsa a tla daihmâ tawhta taopa zy, sâh zawpa zy cha phahnai khao vei. A daihtita liata hmotao lymâ awpa peimawhzie nata, liahsa daihti a khô tawhta taopa a phahnai leizie reina a châ.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Orphans without parents (Nô pasi lei, paw pasi lei)", mara: "Nô pasi lei, paw pasi lei", detail: "Chhorei ta pasipa-aotuhpa, nô nata paw hnei khao leipazy reina a châ.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Task finished completely (Mie lahmô bâ)", mara: "Mie lahmô bâ", detail: "Hmotao a saomâ, chatliechakohpa reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "No rest or pause (My kha ti doh lei)", mara: "My kha ti doh lei", detail: "Hmo tlyuh leipa, adaih parei leipa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Pretending not to want what you desire (Syhiah via u bawh)", mara: "Syhiah via u bawh", detail: "'Nie mah y' ama tah ngâ nota khoh leipa hawhta apa-ysa ta, khoh kaw tlôhpa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Very joyful / cheerful (Châki zoh)", mara: "Châki zoh", detail: "Aly thapha kawpa, azawvo ngâpa reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Unable to work due to old age (Chakoh chabaih)", mara: "Chakoh chabaih", detail: "Tlâhlei chiehleina vâta tlyma, machâ uhthei kaw bâpa a châpa vâta, raihria thei khao leipa reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Advancing / progress (Cha-aw chalaih pawh)", mara: "Cha-aw chalaih pawh", detail: "Hmahsiena kyh reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Trouble from a spouse (Chavah lôsy reina)", mara: "Chavah lôsy reina", detail: "Dyhchâ tawhta rairuna reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Stepping into an unwanted situation (Chhobai masiah phei pahawhpa hawh)", mara: "Chhobai masiah phei pahawhpa hawh", detail: "Pahnie tlôh lei awpa, aphuhphialeipa apahawhpa, khohlei khohpa, aphaleipa tao achhuahpa reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Wicked people do not live long (Chhaolei kâkha rôleipa)", mara: "Chhaolei kâkha rôleipa", detail: "Dyhchhiepazy thina sôh leizie reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Completely gone or finished (Cha-ia pheipi hawhta tlo)", mara: "Cha-ia pheipi hawhta tlo", detail: "Hmo a y khao leipa, a mua hapa reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Very old / white-haired (Chhaolei tly tuapa)", mara: "Chhaolei tly tuapa", detail: "Uhthei viapa, pih tuapa reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Bad generation / youth generation (Chhâchhie chhâkhu)", mara: "Chhâchhie chhâkhu", detail: "Chhâ phaleipa, thyutliapa chhâ reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Falling short / not fitting (Châhchei chhu)", mara: "Châhchei chhu", detail: "Thaichâna khâchâ atluapa, bie â sy kho leipa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Treating what is absent as real (Cha-ia salei sa pachâsa)", mara: "Cha-ia salei sa pachâsa", detail: "A y leipa vyuhpa ta apyhpa reina. Cha-ia chhao he sa hawhta pachâna a y tyhnazie reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Because of that / therefore (Chasi vâsâ ta)", mara: "Chasi vâsâ ta", detail: "Achhâ chhâna liata cha, tahna.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Harmful / evil talk spread by others (Chyh-ei sikhôh)", mara: "Chyh-ei sikhôh", detail: "Chyhsazy ta thâchhie reihpa ta amâ chia laihpa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Ahi, palôlie (Angie)", mara: "Angie", detail: "Hmâna: Hnôhlâ daihti vâpa ta angie laih na.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Vâ, khâ a thei thlâh tyhpa (Angiah)", mara: "Angiah", detail: "Hmâna: Hnôhlâ daihti angiahpa ta angie laih na.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Awh thie khipa (Awhvia)", mara: "Awhvia", detail: "Hmâna: Eima o lâ pati vaw nie tyh, Awhvia thie pi ta.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Hawti tua khipa (Awhvia thiekhi)", mara: "Awhvia thiekhi", detail: "Hmâna: Pâpâ chhao atahmâ la awhvia thiekhi a châ ha bâ.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Khih yna, khih reina (Bôhpi)", mara: "Bôhpi", detail: "Hmâna: Ei khih bôhpi he khâ ei thei tyh.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Pahsi, rei kawpa reina (Bohpi)", mara: "Bohpi", detail: "Hmâna: Riethei eima taona he bohpi châ khao aw vei.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Bie (Lyuhbie)", mara: "Lyuhbie", detail: "Hmâna: Khazia lyuhbie paru ei n’aw hlâ vei chi?", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Lyu, tôhi (Lyubô)", mara: "Lyubô", detail: "Hmâna: Atanoh la lyubô lâ ei sie tua aw.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Khopa (Satlia-laihsa a awna) (Lôhdu)", mara: "Lôhdu", detail: "Hmâna: Lôhdu nâ la achhaih khao ma pi n’aw tah va chi ma!", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Viasa, viasa apakyh kawpa (Lôhkhy)", mara: "Lôhkhy", detail: "Hmâna: Ei lôhkhy zy chhaota eima chareikhohna daihtizy kha.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Palôh hâh leipa (Lôh-mao)", mara: "Lôh-mao", detail: "Hmâna: Thyudyu lôh-mao dei châ chy ta e.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Hru, ngâ, novâh lei (Lôh-maoh)", mara: "Lôh-maoh", detail: "Hmâna: Ano hao la chyhsa lôh-maoh kawpa châ ta, pahnothai thlâh mah y.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Lochona daihti khô hapa, thyutlia hmiphana (Meihkia lo)", mara: "Meihkia lo", detail: "Hmâna: Daihti khô ta na hnazô meihkia lo ha hra sala…", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Lôh hro phaoh, tleisai (Motleih châ)", mara: "Motleih châ", detail: "Hmâna: Khazia motlei châ ta lytlâh eina khôsai ha chi?", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Viasa akho lei, heihnawh akho lei, nawh via (Nawhnai)", mara: "Nawhnai", detail: "Hmâna: Kei la nawhnai tu hapa hnaihta, na khotly paw lâ cha tlei ha mah y.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Saw, hawtipa (Nawhhly)", mara: "Nawhhly", detail: "Hmâna: Ahnei sih la, nawhhly apyhkhoh lah vâ pi!", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Khôpua, charei (Khôlaizoh)", mara: "Khôlaizoh", detail: "Khôpua, charei.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Riari kawpa reina (Lâlao mâh-lao)", mara: "Lâlao mâh-lao", detail: "Riari kawpa reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Lôhawh kawpa, palopasah kawpa reina (Lalôsasia)", mara: "Lalôsasia", detail: "Lôhawh kawpa, palopasah kawpa reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Chahraochatôh, biesyu thâsyuh a châpa (Liati liahrao)", mara: "Liati liahrao", detail: "Chahraochatôh, biesyu thâsyuh a châpa, ngiahtiahleipa ta hmo haw.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Viasa kho kholei a sapa (Lôhchhai lôhkhy)", mara: "Lôhchhai lôhkhy", detail: "Viasa kho kholei a sapa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Chyhsa kuchha, palôh laipa reina (Lô tiah lei, tho tiah lei)", mara: "Lô tiah lei, tho tiah lei", detail: "Chyhsa kuchha, palôh laipa reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Râh lâ reina (Lyurâh obao)", mara: "Lyurâh obao", detail: "Râh lâ reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Dyhchâ daihti liata dyh achâ leipa, uhtheipi (Laikhôh)", mara: "Laikhôh", detail: "Dyhchâ daihti liata dyh achâ leipa, uhtheipi a châ hapa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Thyulâh pilâhpa a hnei leipa, pakha deipa (Matlukhailapa)", mara: "Matlukhailapa", detail: "Thyulâh pilâhpa a hnei leipa, pakha deipa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Reiraoh leipa (Mie ie tla ta tla)", mara: "Mie ie tla ta tla", detail: "Reiraoh leipa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Apakaoh kawpa reina (Meilô nata sykhao)", mara: "Meilô nata sykhao", detail: "Apakaoh kawpa reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Hmô tlyuh leipa, adaih parei leipa reina (Mykha ti doh lei)", mara: "Mykha ti doh lei", detail: "Hmô tlyuh leipa, adaih parei leipa reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Chyhsa hmotaopa a hnabeidynazie ta a reih thaipa (Mei pachhai ti pakua)", mara: "Mei pachhai ti pakua", detail: "Chyhsa hmotaopa a hnabeidynazie ta a reih thaipa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Chhoreituhpa nô nata paw hnei khao leipa, hârapa (Nô pasi lei, paw pasi lei)", mara: "Nô pasi lei, paw pasi lei", detail: "Chhoreituhpa nô nata paw hnei khao leipa, hârapa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Thlai thi awpa ta pachâpazy thi leipa ei ta, thatlôpa tlao ama thi tuapa reina (Chhohna hrohpa zô ta, chhohna raohpa â bâh)", mara: "Chhohna hrohpa zô ta, chhohna raohpa â bâh", detail: "Thlai thi awpa ta pachâpazy thi leipa ei ta, thatlôpa tlao ama thi tuapa reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Dyhchhie satlia ta lahpinô pha kawpa a hneipa reina (Chhâsy byh liata ngapeih â sypa hawh)", mara: "Chhâsy byh liata ngapeih â sypa hawh", detail: "Areisina reikah ngia kawpa nata khochhih kawpa a châ. Dyhchhie satlia ta lahpinô pha kawpa a hneipa reina a châ.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Chanô sôhzie nata ama ky leizie reina (Chanô chhie ky lei, dawhkia chhie ky lei)", mara: "Chanô chhie ky lei, dawhkia chhie ky lei", detail: "Chanô chhie kawpa chhao ky leipa ta â phuphiahpa vahpa a hnei tyh thlyupa hawhta, dawhkia chhiepa chhao hmâna a y tyh thlyu hra.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Ei kha vâdua atyh ta, atyh via lao heihpa reina (Chakeih ta sie ta, Chavyh ta a sie lao)", mara: "Chakeih ta sie ta, Chavyh ta a sie lao", detail: "Ei kha vâdua atyh ta, atyh via lao heihpa reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Viasa ngâchhih kawpa nata pha kawpa, unawh hawhta a y tyhpazy reina (Ei kei na ei riah a châ)", mara: "Ei kei na ei riah a châ", detail: "Viasa ngâchhih kawpa nata pha kawpa, chhienoh phanoh daihti lia chhao ta unawh hawhta a y tyhpazy, khâpa tlyma ahmôthai khao leipa ta adyuh hapa zy, a eichapheih hapa zy reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Haipa bie reipa ta ahaihtuhpa â liethlu tyhpa reina (Haih pasa âmo pheipi kô daih)", mara: "Haih pasa âmo pheipi kô daih", detail: "Haipa bie reipa ta ahaihtuhpa â liethlu tyhpa reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Hmophaleipa taotuhpa hlâta a taotuhpa nô nata paw, chhôhkhazy ama noza via tyhnazie reina (I thietuhpa noza vei, a raotuhpa noza)", mara: "I thietuhpa noza vei, a raotuhpa noza", detail: "Hmophaleipa taotuhpa hlâta a taotuhpa nô nata paw, chhôhkhazy ama noza via tyhnazie reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Lyupa kô khat châ deita lyupa a châ laia Opazy kô hluhpi chhôh Opa an nih ṭhinzia (Lyupa kô kha, Opa chhâzaw)", mara: "Lyupa kô kha, Opa chhâzaw", detail: "Lyupa cha lyu ama tlakhoh chhôh, kô kha châ deita lyupa châ ei ta, Opazy deikua cha kô hluhpi chhôh Opa ama châ tyhpa vâta Opazy palôh pachhie ta pasasa awpa châ leipa ta, a chado a byuhzie reina a châ.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Pilâhpa unawh tlyma, thyulâhpa tlyma a hnei leipa, pakha deipa reina (Awhtih hawhta chymih)", mara: "Awhtih hawhta chymih", detail: "Pilâhpa unawh tlyma, thyulâhpa tlyma a hnei leipa, pakha deipa reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Py tlyma, chhôhkha tlyma ama kei awpa chy, ama paipatla awpa chy zy ta amâ hryuh/tahthai tyh leipa reina (Awh ama pai chy ta amâ pachu tyh)", mara: "Awh ama pai chy ta amâ pachu tyh", detail: "Py tlyma, chhôhkha tlyma ama kei awpa chy, ama paipatla awpa chy zy ta amâ hryuh/tahthai tyh leipa reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Zawpi ta tlyma, chyhsa pano pathôh ta hria awpa rai tlyma hmotao awpa tlyma pakha deita ta taopa/hriapa reina (Awhhroh pathlie)", mara: "Awhhroh pathlie", detail: "Zawpi ta tlyma, chyhsa pano pathôh ta hria awpa rai tlyma hmotao awpa tlyma pakha deita ta taopa/hriapa reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Bierei pahâh kawpa nata pachawparaw kawpa reina (Biakô pazao)", mara: "Biakô pazao", detail: "Bierei pahâh kawpa nata pachawparaw kawpa reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Khâpa hmahta tao/hria leipa ta atyuh chhôhmoh kawpa ta a tyuh thlâh hapa reina (Beihtyu phiahtyu)", mara: "Beihtyu phiahtyu", detail: "Khâpa hmahta tao/hria leipa ta atyuh chhôhmoh kawpa ta a tyuh thlâh hapa reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "A hmo hneipa uasa leipa ta chyhsa hmô hneipazy achhuhrao laihpa reina (Bykheihpa hawh)", mara: "Bykheihpa hawh", detail: "A hmo hneipa uasa leipa ta chyhsa hmô hneipazy achhuhrao laihpa reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Biereipazy a pathâh/â hiezawh chatliezie reina (Bie nata thlih)", mara: "Bie nata thlih", detail: "Biereipazy a pathâh/â hiezawh chatliezie reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Chyhsa riahphapa, chariah nata sahrâh hmiakô liata dua beih leipa chyhsa (Riahpaw)", mara: "Riahpaw", detail: "Chyhsa riahphapa, chariah nata sahrâh hmiakô liata dua beih leipa chyhsa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Râh liata a khiekhâpa (Râhchuah)", mara: "Râhchuah", detail: "Râh liata a khiekhâpa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Mâ (Ramâ)", mara: "Ramâ", detail: "Mâ.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Mothli (Raithlih)", mara: "Raithlih", detail: "Mothli.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Areisina reikah (Rairao)", mara: "Rairao", detail: "Areisina reikah.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Pachâ, palôhru ta pachâ, patuapalua (Rohpady)", mara: "Rohpady", detail: "Pachâ, palôhru ta pachâ, patuapalua.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Rai (Raisâh)", mara: "Raisâh", detail: "Rai.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Raihria (Raisâhsa)", mara: "Raisâhsa", detail: "Raihria.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Riahpha (Riahchhyu)", mara: "Riahchhyu", detail: "Riahpha.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Adyuh (Riahchâ)", mara: "Riahchâ", detail: "Adyuh.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Hmosôhpa (Ryu)", mara: "Ryu", detail: "Hmosôhpa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Khopa a awna, (satlia nata laihsa) (Rianai)", mara: "Rianai", detail: "Khopa a awna, (satlia nata laihsa).", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Dâhkarie hapa, khih rypa chyhsa y leina (Rohryhra)", mara: "Rohryhra", detail: "Dâhkarie hapa, khih rypa chyhsa y leina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Ahryusina a y ngâthlâhpa reina (Reihchhi khaw lei)", mara: "Reihchhi khaw lei", detail: "Ahryusina a y ngâthlâhpa reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Laihsa tahna (Pawmaih)", mara: "Pawmaih", detail: "Laihsa tahna", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Khopa bie reithlupa (Laphôh to thlu)", mara: "Laphôh to thlu", detail: "Khopa bie reithlupa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Pahrâna râh (Laihna)", mara: "Laihna", detail: "Pahrâna râh.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Khopa, Vâ-iapa, Kyhpachâpa (Lôhdu)", mara: "Lôhdu", detail: "Khopa, Vâ-iapa, Kyhpachâpa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Hiehâhpa, palôh pasa (Lôhhia)", mara: "Lôhhia", detail: "Hiehâhpa, palôh pasa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Viasa (Lailâh)", mara: "Lailâh", detail: "Viasa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Palôh araoh (Lôh-raoh)", mara: "Lôh-raoh", detail: "Palôh araoh.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Tlâh (Lytlâh)", mara: "Lytlâh", detail: "Tlâh.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Palôhtlâh (Lôhki)", mara: "Lôhki", detail: "Palôhtlâh.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Pina khih, Pina râh (Liahritlona)", mara: "Liahritlona", detail: "Pina khih, Pina râh.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Palôhru, Palôh pachyu (Lôhpi phao)", mara: "Lôhpi phao", detail: "Palôhru, Palôh pachyu.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Khozie hawhta charei, y (Laihzaolao)", mara: "Laihzaolao", detail: "Khozie hawhta charei, y.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Palôh hâh leipa, hru, Ngâ novâh leipa (Lôhmaoh)", mara: "Lôhmaoh", detail: "Palôh hâh leipa, hru, Ngâ novâh leipa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Palôh hro phaosai (Lôhhro)", mara: "Lôhhro", detail: "Palôh hro phaosai.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Viasa richâhpa (Lôhkhy)", mara: "Lôhkhy", detail: "Viasa richâhpa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Hnabeidy (Lôhdua)", mara: "Lôhdua", detail: "Hnabeidy.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "A lôh (Lôhsy)", mara: "Lôhsy", detail: "A lôh.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Su, Yna (Lâkô)", mara: "Lâkô", detail: "Su, Yna.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Laihsa o liata satlia ariepakhypa reina (Laiphô)", mara: "Laiphô", detail: "Laihsa o liata satlia ariepakhypa reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Palôh pachâna (Lôh lia)", mara: "Lôh lia", detail: "Palôh pachâna.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Machhie zuah sei a châ leipa pho (Lôkâhtipasoh)", mara: "Lôkâhtipasoh", detail: "Machhie zuah sei a châ leipa pho.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Nôkia awpa nota sa nata sâh odyh tota ama raipa (Laoleih)", mara: "Laoleih", detail: "Nôkia awpa nota sa nata sâh odyh tota ama raipa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Viasa richâh apakyh haipa (Laihly)", mara: "Laihly", detail: "Viasa richâh apakyh haipa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Palôh (Lôh)", mara: "Lôh", detail: "Palôh.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Khazohpa (Lythâhpa)", mara: "Lythâhpa", detail: "Khazohpa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Lichih, thatlô lichih (Locho)", mara: "Locho", detail: "Lichih, thatlô lichih..", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Pahrâna khih, Yna khih (Khihbôhpi)", mara: "Khihbôhpi", detail: "Pahrâna khih, Yna khih.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Kuzô (Kuhria)", mara: "Kuhria", detail: "Kuzô.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Satlia (Khydi)", mara: "Khydi", detail: "Satlia.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Vâsuati (Khihsua)", mara: "Khihsua", detail: "Vâsuati", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Nôvah ahneina vâta tlyma sanawh chhôhkha azaokhi khai hapa reina (Ramawh thari, tho thari hawhta thla)", mara: "Ramawh thari, tho thari hawhta thla", detail: "Nôvah ahneina vâta tlyma sanawh chhôhkha azaokhi khai hapa reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Bie khodâh hawhta a reih thlâh hapa, ahryuh ngâthlâh hapa (Reihchhi khaw lei)", mara: "Reihchhi khaw lei", detail: "Bie khodâh hawhta a reih thlâh hapa, ahryuh ngâthlâh hapa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Hia byuh leipa, â zai thlâh hapa (Rei hia lei)", mara: "Rei hia lei", detail: "Hia byuh leipa, â zai thlâh hapa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Chi patho ngâthlâh hapa (Riah hnôh chi)", mara: "Riah hnôh chi", detail: "Chi patho ngâthlâh hapa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Hmahsiena hnei leipa, châna tyhpa liata khâ ypa (Raawh tla hmopa liata tla / Raawh saw sa)", mara: "Raawh tla hmopa liata tla (Raawh saw sa)", detail: "Hmahsiena hnei leipa, châna tyhpa liata khâ ypa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Raihria pakhâ, chybâlâkhâ (Raichyu khiachyu)", mara: "Raichyu khiachyu", detail: "Raihria pakhâ, chybâlâkhâ.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Rairuna (Rairu khiaru)", mara: "Rairu khiaru", detail: "Rairuna.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Rai paryu (Raipadâ khiapadâ)", mara: "Raipadâ khiapadâ", detail: "Rai paryu.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Rai liata a tôhpipa (Raipi khiapi)", mara: "Raipi khiapi", detail: "Rai liata a tôhpipa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Palôhtlâh leipa (Ruchhô hiachhô)", mara: "Ruchhô hiachhô", detail: "Palôhtlâh leipa", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Aparaparô, chatlie baikhai (Rawrôh mâmih)", mara: "Rawrôh mâmih", detail: "Aparaparô, chatlie baikhai", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Chyhsa hluhpa, acharihchamyh hôlôpa (Rieru maru)", mara: "Rieru maru", detail: "Chyhsa hluhpa, acharihchamyh hôlôpa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Dâh karopa, ziahzi rohpa (Roryhra)", mara: "Roryhra", detail: "Dâh karopa, ziahzi rohpa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Â raohpa ta chyhsa pano pathôh tlâhleipa (Ruti paripa hawh)", mara: "Ruti paripa hawh", detail: "Â raohpa ta chyhsa pano pathôh tlâhleipa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Lyurâh, râhhmâhpa (Rohpi)", mara: "Rohpi", detail: "Lyurâh, râhhmâhpa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Râh liata chavah ti (Rohpiti)", mara: "Rohpiti", detail: "Râh liata chavah ti.", category: "Reih Machâpa / Nôpaw Biephôh" },
+
+      // Chanô / Laihsa Moh hrang hrangte (Reih Machâpa)
+      { english: "Vahpa ta â kaolâhpa lahpinô reina (Achyuhreinô)", mara: "Achyuhreinô", detail: "Vahpa ta â kaolâhpa lahpinô reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Dyhchâ mâh leipa laihsa (Alaihnô)", mara: "Alaihnô", detail: "Dyhchâ mâh leipa laihsa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Abei zuah (Chhivaw)", mara: "Chhivaw", detail: "Abei zuah", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Abei zuah chhithai kwpa (Chhivawrôhnô)", mara: "Chhivawrôhnô", detail: "Abei zuah chhithai kwpa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Laihsa hmipha kwpa (Chhihroh)", mara: "Chhihroh", detail: "laihsa hmipha kwpa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Laihsa ngyuh kawpa (Châhpidynô)", mara: "Châhpidynô", detail: "laihsa ngyuh kawpa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Chanô vahpa ahnei hapa (Dyhnô adyhpa)", mara: "Dyhnô adyhpa", detail: "chanô vahpa ahnei hapa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Chanô or laihsa khopa reina (Dinô)", mara: "Dinô", detail: "chanô or laihsa khopa reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Lahpi awpa ta apahwh hapa (Liahnô)", mara: "Liahnô", detail: "lahpi awpa ta apahwh hapa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Abei lahpinô hryta a bei viapa nata ryu totuhpa (Nôbei)", mara: "Nôbei", detail: "abei lahpinô hryta a bei viapa nata ryu totuhpa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Abei lahpi hryta a thothâ viapa (Nôtho)", mara: "Nôtho", detail: "abei lahpi hryta a thothâ viapa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Lahpinô hmiatuapa (Nôhro)", mara: "Nôhro", detail: "lahpinô hmiatuapa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Lahpinô hnôh viapa (Nôtlia)", mara: "Nôtlia", detail: "lahpinô hnôh viapa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Satuhpa nô, ei nâ (Nôpih)", mara: "Nôpih", detail: "satuhpa nô, ei nâ.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Laihsa chhithaipa (Râhdôpawnô)", mara: "Râhdôpawnô", detail: "laihsa chhithaipa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Abei zuah, chhithai kawpa reina (Rakuhpawnô)", mara: "Rakuhpawnô", detail: "abei zuah, chhithai kawpa reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Chanô saw, sawchanô (Sahnô)", mara: "Sahnô", detail: "chanô saw, sawchanô.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Sietanô pasô kwpa nata dao kawpa (Siesôh)", mara: "Siesôh", detail: "sietanô pasô kwpa nata dao kawpa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Abei sawchanô (Sôh lynô)", mara: "Sôh lynô", detail: "abei sawchanô.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Khopaoh kawpa laihsa reina (Sialie)", mara: "Sialie", detail: "khopaoh kawpa laihsa reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Abei laihsa (Syngôh)", mara: "Syngôh", detail: "abei laihsa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Laihsa hneirôh kawpa (Thisykônô)", mara: "Thisykônô", detail: "laihsa hneirôh kawpa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Phoso zuah laihsa (Tihnohzi zuah)", mara: "Tihnohzi zuah", detail: "phoso zuah laihsa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Laihsa chhithaipa nata atlai kawpa (Tuh-lypawnô)", mara: "Tuh-lypawnô", detail: "laihsa chhithaipa nata atlai kawpa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+
+      // Additional Idioms, Proverbs & Refined Expressions
+      { english: "Zawpi hluhpi, chyhsa hluhpi reina (Tlohpi saithâh)", mara: "Tlohpi saithâh", detail: "Zawpi hluhpi, chyhsa hluhpi reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "A chaobie kawpa reina (Thairapupa sa tiah lei)", mara: "Thairapupa sa tiah lei", detail: "A chaobie kawpa reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Tusaw, sietanô sawzy (Tuchho sapaw)", mara: "Tuchho sapaw", detail: "Tusaw, sietanô sawzy.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Moh pathâhpa, khizaw pathâhpa (Vâsôdaih)", mara: "Vâsôdaih", detail: "Moh pathâhpa, khizaw pathâhpa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Hnabeidy (Tholiah dei)", mara: "Tholiah dei", detail: "Hnabeidy.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Lai kawpa, kawh kawpa reina (Vâtlaw tie)", mara: "Vâtlaw tie", detail: "Lai kawpa, kawh kawpa reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Nô (Vyh na phaoh nô)", mara: "Vyh na phaoh nô", detail: "Nô.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Chyhsa torai, khizaw chyhsa (Vârâh tei)", mara: "Vârâh tei", detail: "Chyhsa torai, khizaw chyhsa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Khôpua, charei (Khôlaizo)", mara: "Khôlaizo", detail: "Khôpua, charei.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Bierei uasa leipa, nahthlie pha leipa, apapeisa leipa (Khaoli bâli / Kahbâ leisi / Kahbâ leihbâ)", mara: "Khaoli bâli / Kahbâ leisi / Kahbâ leihbâ", detail: "Bierei uasa leipa, nahthlie pha leipa, apapeisa leipa, kholeipazy hnohta biereipa a phahnai leizie reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Hohiahpa (Kazoh leizoh)", mara: "Kazoh leizoh", detail: "Hohiahpa", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Biebua hlabua hneina, kaleih a aona, cheina (Kaleih sâhpâh)", mara: "Kaleih sâhpâh", detail: "Biebua hlabua hneina, kaleih a aona, cheina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Reikah thai leipa, bierei asaomâ leipa (Kahchô lei-âhpa)", mara: "Kahchô lei-âhpa", detail: "Reikah thai leipa, bierei asaomâ leipa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Hmô chyh kawpa, akhi hrao leipa hmo (Kadâ leidâ)", mara: "Kadâ leidâ", detail: "Hmô chyh kawpa, akhi hrao leipa hmo, khâpa didâh hmahta a châ leipa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Hmotao nata raihria phahnai leipa (Kubâ pheibâ)", mara: "Kubâ pheibâ", detail: "Hmotao nata raihria phahnai leipa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Ialia thawlia kawpa ta biereipa, aisaingaityu ta biereipa (Kakia kalei)", mara: "Kakia kalei", detail: "Ialia thawlia kawpa ta biereipa, aisaingaityu ta biereipa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Ku nata phei pa-ysa molo thai leipa, a chavie kawpa (Kuzoh pheizoh / Kuchoh pheichoh)", mara: "Kuzoh pheizoh / Kuchoh pheichoh", detail: "Ku nata phei pa-ysa molo thai leipa, a chavie kawpa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Paruthaipa, ahneituhpa pahno leipa ta hmo ala thaipa (Kusuarua hnei / Kusisua hnei)", mara: "Kusuarua hnei / Kusisua hnei", detail: "Paruthaipa, ahneituhpa pahno leipa ta hmo ala thaipa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Tah tupâpa, tah laothaopa, laothao kiahpa reina (Khuachua)", mara: "Khuachua", detail: "Tah tupâpa, tah laothaopa, laothao kiahpa reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Chyhsa pakha pha leipa ta zawpi a rô theizie reina (Ngalo pôkha thupa ta lawhbu kha rô)", mara: "Ngalo pôkha thupa ta lawhbu kha rô", detail: "Pms: Hitler moleina vâta 'Ngalo pôkha thupa ta lawhbu kha a rô' ama tahpa hawh tlai ta German phopi cha Khizaw ta â hao hapa a châ.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Ahrupazy hluhna khih a lôhhawhzie reina (Ahrupa yna Khih lôh, Seihcheih yna râh lôh)", mara: "Ahrupa yna Khih lôh, Seihcheih yna râh lôh", detail: "Pms: Cha nama lôhhawh dâh rihmâ cha la, 'Ahrupa yna khih lôh, seihcheih yna râh lôh' ama tahpa tlaina nama lyu.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Dyhchhiepa reina (O pazu pachasa)", mara: "O pazu pachasa", detail: "Pms: Keimozy hawhpa, 'O-pazu pachasapa' tlaita miah na khokheipa vâta eimâ ly zie rei thei mah pi.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Nozahpa ta akhu thlâhpa reina (Ano pheipi â moh)", mara: "Ano pheipi â moh", detail: "Pms: Zâhnia zâ la â pie chheitu ta, 'A pheipi â moh' thlâh hapa khâ.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Chyhsa hmisâ â lyu kawpa reina (Phiah khaichheihpa hawh)", mara: "Phiah khaichheihpa hawh", detail: "Pms: Cha ama narô ta amâ lyu dâh rihmâ châ, 'Phia khaichheihpa hawhna' ama tah thlâh ha.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Viasazy rei ahly kho thai leipa (Eireichâhchhih)", mara: "Eireichâhchhih", detail: "Pms: Cha 'Ei reichâh nâ chhih' dâh la, eima reipa cha apyh thlâh hra bao ly.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Rei chho phahnai leipa reina (Kahbâleihsyu)", mara: "Kahbâleihsyu", detail: "Pms: Eima khih lâpi chhiezie reipa la, 'Kahbâleihsyuna'-na tlâ a châ.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Chapaw apatheisa kawna bie (Chapaw haina ky vei, sakhih râna ky vei)", mara: "Chapaw haina ky vei, sakhih râna ky vei", detail: "Sakhih a khona lâ maih â râ theipa hawhta, chapaw chhao bie kheihawhpa kyh lia rai a khozie hawhta haipa ta a pathleih theinazie reina a châ.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Ano kyh dei apachâ ta viasa pachâleipa reina (Chi mo ky châ)", mara: "Chi mo ky châ", detail: "Ano kyh dei apachâ ta viasa pachâleipa reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Haiphiahpa, haidi-haiduahpa chyhsa reina (Chakâ Tlâ-uah, râhzei Tlâ-uah)", mara: "Chakâ Tlâ-uah, râhzei Tlâ-uah", detail: "Haiphiahpa, haidi-haiduahpa chyhsa reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Râh ahla pi reina (Chhorâh)", mara: "Chhorâh", detail: "Râh ahla pi reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Rai tuapa thlai avaw lie leipa ta ahawh kawpa reina (Chhiezao meilapa)", mara: "Chhiezao meilapa", detail: "Rai tuapa thlai avaw lie leipa ta ahawh kawpa reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Athata angiapachhipa, angiapachhi pasa kawpa reina (Ngiapachhi lâhrawh)", mara: "Ngiapachhi lâhrawh", detail: "Athata angiapachhipa, angiapachhi pasa kawpa reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Angiapachhi tlamaw awpa avaihna (Ngiapachhi pâhchhô)", mara: "Ngiapachhi pâhchhô", detail: "Angiapachhi tlamaw awpa avaihna.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "A duahmo nata châna nahta ahmie leipa, nozachhihpa hmo reina (Ngiali sawli)", mara: "Ngiali sawli", detail: "A duahmo nata châna nahta ahmie leipa, nozachhihpa hmo reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Angiahbâ thlâhpa, palôh liata saihei thlâhpa hmo, chhôh khaipa (Ngiahbâ sibâ)", mara: "Ngiahbâ sibâ", detail: "Angiahbâ thlâhpa, palôh liata saihei thlâhpa hmo, chhôh khaipa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Apara kawpa ta hmo tao ta, hmo chhiepa tlao a hmô hapa (Liahti liahraoh)", mara: "Liahti liahraoh", detail: "Apara kawpa ta hmo tao ta, hmo chhiepa tlao a hmô hapa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Bie peimawhpa rei nota, bie hropa vaw reih chhyh hapa (Kaleih hryta dawhchhy tu)", mara: "Kaleih hryta dawhchhy tu", detail: "Bie peimawhpa rei nota, bie hropa vaw reih chhyh hapa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Lâchao lai kawpa reina (Dawhchhy tie)", mara: "Dawhchhy tie", detail: "Lâchao lai kawpa reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Hawti sâlâ kawpa reina (Âvi kô kiah)", mara: "Âvi kô kiah", detail: "Hawti sâlâ kawpa reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Hmotao awpa hawhta reih ta tao tlôh leipa, chyhsa thlalôh hmilôhna a reihpa (Athih chyhu sa)", mara: "Athih chyhu sa", detail: "Hmotao awpa hawhta reih ta tao tlôh leipa, chyhsa thlalôh hmilôhna a reihpa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Maochhiena nata thâchhiena chhao he Chakeih siepa hlâta pasa via ta, chi â chhihzie reina (Zôhzaipa kô kha, kôrôpa chhâzaw)", mara: "Zôhzaipa kô kha, kôrôpa chhâzaw", detail: "Seizy cha sei tawhta puana daihti hnei tyh ei ta, ahmawh châna deikua amâ pathla pachhuah thei lymâpa vâta chhâzaw â daihpa hawhta, maochhiena nata thâchhiena chhao he Chakeih siepa hlâta pasa via ta, chi â chhihzie reina a châ.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Chidô ngâhdôpa ta hmo taopa reina (A ku khoh tô, a mo riah vaih)", mara: "A ku khoh tô, a mo riah vaih", detail: "Mohropa riah vaihna chôta hmotaopa. Chipâ tlôh, ngâhpâ thlâh ha tlôh, chidô ngâhdôpa ta hmotaopa reina a châ.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Chanô cha chapaw siena nata yna lâ maih sie ta, a zituh awpa a châzie reina (Chanô cha chapaw lâchao phaohpa)", mara: "Chanô cha chapaw lâchao phaohpa", detail: "Chanô cha chapaw siena nata yna lâ maih sie ta, a zituh awpa a châzie reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Hmiphapa hry liata hmichhiepa, mohpathâhpa nata thatlôpa hry liata chiehleipa ahlao hrapazy reina (Nohzuah hryta kaopi atho lyh)", mara: "Nohzuah hryta kaopi atho lyh", detail: "Hmiphapa hry liata hmichhiepa, mohpathâhpa nata thatlôpa hry liata chiehleipa ahlao hrapazy reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Paw hlâta nô ama sôh vianazie nata sawzy kyh ama pachâ vianazie palâsa khohna (Paw cha pawpavaw, nô cha nôthlôh nô-iah)", mara: "Paw cha pawpavaw, nô cha nôthlôh nô-iah", detail: "Nô nata paw zy cha sawzy châta sôh rairie hra ei sala, paw hlâta nô ama sôh vianazie nata sawzy kyh ama pachâ vianazie palâsa khohna reikah.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Hmia asah tuapazy khokhei tua awpa ama chânazie zy reina (A thi tuapa thlâ khaoh pha pahrâ)", mara: "A thi tuapa thlâ khaoh pha pahrâ", detail: "Hmia asah tuapazy khokhei tua awpa ama chânazie zy, tovyuh phapa ato awpa ama chânazie zy reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Hmotaopa nata raihriana liata araohâh thai leipa reina (Azyh para sapa hawh)", mara: "Azyh para sapa hawh", detail: "Hmotaopa nata raihriana liata araohâh thai leipa reina; Pakha ta tlyma, py kha ta tlyma tao ei, mohropa nata py hropazy ta phie/parao ha ei tahpa reina a châ.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Ano chhôhkha hlâta maniahpa/mohropa a uasa viapa reina (Ano saw ri pazia ta, maniahpa saw ri kiah)", mara: "Ano saw ri pazia ta, maniahpa saw ri kiah", detail: "Ano chhôhkha hlâta maniahpa/mohropa a uasa viapa reina. Hmotao awpazy aso thlâh ha ta, mohropa eih ataopa reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "A taotuhpa châta pasa kaw ta, atotuhpa châta aly thaphana a châ tlôhpa reina (Awhpanô cha ta, Sahawh a pahnei)", mara: "Awhpanô cha ta, Sahawh a pahnei", detail: "A taotuhpa châta pasa kaw ta, atotuhpa châta aly thaphana a châ tlôhpa reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Thaichâ awpa thailei a châ hapa reina (Awhpanô kachuh khuhlôpa)", mara: "Awhpanô kachuh khuhlôpa", detail: "Thaichâ awpa thailei a châ hapa reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Chyhsa a y molo thlâh hapa biechhie patosapa reina (Y pathâ vei roh thei)", mara: "Y pathâ vei roh thei", detail: "Chyhsa a y molo thlâh hapa biechhie patosapa reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Sawzy ta nô nata paw hrozie ama lyu tyhnazie reina (Biapanô patha ta, biataw a patha hra)", mara: "Biapanô patha ta, biataw a patha hra", detail: "Hrozie nôchâ liata zy, phana nata phaleina liata zy sawzy ta nô nata paw hrozie ama lyu tyhnazie reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Khichhaipa ta azipa a pho ha tyhnazie reina (Râh pazu ta O pazu pho)", mara: "Râh pazu ta O pazu pho", detail: "Khichhaipa ta azipa a pho ha tyhnazie reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Chhithatuhpa, hyutuhpa atao hra awpa a peimawhzie reina (Azyh ta khatôpa a tao)", mara: "Azyh ta khatôpa a tao", detail: "Azyh heta hyutuhpa, chhithatuhpa ama hneipa ta reipa châ ta, cha hawhna hra ta chyhsapa liata chhao zawpi ta tlyma py ta tlyma chhithatuhpa, hyutuhpa atao hra awpa a peimawhzie reina a châ.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Nôpo pachârôh hmeiseihpa reina (Alei moh po, avâ moh asâh)", mara: "Alei moh po, avâ moh asâh", detail: "Nôpo pachârôh hmeiseihpa reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Pha pakhei kaw tlôh ta chhie kaw tlôhpa reina (Chômoh ry-phawh)", mara: "Chômoh ry-phawh", detail: "Pha pakhei kaw tlôh ta chhie kaw tlôhpa reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Chanô palôh chyhzie reina (Chanô lôh lei cha-ia luh lei)", mara: "Chanô lôh lei cha-ia luh lei", detail: "Chanô palôh chyhzie reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Bierei ha chiehpa cha tao patlô changei awpa tahna (Chapaw bie ngiahraih hnie)", mara: "Chapaw bie ngiahraih hnie", detail: "Bierei ha chiehpa cha tao patlô changei awpa tahna a châ.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Zaw lâpi liata chicheipazy, theilâpazy â boh thaileizie reina (Sawku kyh liata bia loh)", mara: "Sawku kyh liata bia loh", detail: "Zaw lâpi liata chicheipazy, theilâpazy â boh thaileizie reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Sao vawh thaileipa ta a luh â khu thlâh hapa hawhta reikah thai leipa pa-ao thlâh tyhnazie (Sao vawh thai lei luhkhu)", mara: "Sao vawh thai lei luhkhu", detail: "Sao vawh thaileipa ta a luh â khu thlâh hapa hawhta, reikah thai leipa chhao ta a biereipa ta â pa-ao thlâh ha tyh.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Saphu rao beih leipazy leh saiso beih leipazy tymâkheizia reina (Saiso beih lei, saphu rao beih lei)", mara: "Saiso beih lei, saphu rao beih lei", detail: "Saphu a rao beih leipazy ta cha kheita ma rao awpa tahpa â tymâkhei ei ta, saiso beih leipazy chhao ta kheita ma saiso awpa tahpa amâ tymâkhei kaw tyh.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Tiamana nata hriapasana ta hlaotlohna a tlôkhei tyh tahpa reina (Sei châ hmia pasah ta, bei châ hnôh pa-ypa)", mara: "Sei châ hmia pasah ta, bei châ hnôh pa-ypa", detail: "Tiamana nata hriapasana ta hlaotlohna a tlôkhei tyh, tahpa reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Chyhsapa thina naozie reina (Thina lâhnia, hrona lâhnia)", mara: "Thina lâhnia, hrona lâhnia", detail: "Chyhsapa thina naozie reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Chhorupa, chhoreina apyh khoh leipa (Tho tiahlei, lô tiahlei)", mara: "Tho tiahlei, lô tiahlei", detail: "Chhorupa, chhoreina apyh khoh leipa.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Tovyuh liata karâ hnei tupa zy, khohlei khoh tupa zy tlao ama ky tyhpa reina (Pihvao sa pha châ la tahpa khoh leipa ta zô I liata tlapa hawh)", mara: "Pihvao sa pha châ la tahpa khoh leipa ta zô I liata tlapa hawh", detail: "Tovyuh liata karâ hnei tupa zy, khohlei khoh tupa zy tlao ama ky tyhpa reina.", category: "Reih Machâpa / Nôpaw Biephôh" },
+      { english: "Lyu tatawpa chichei a phat chuan kho a chhih via tyhnazie reina (Lyutaw nah lyupi â tlu)", mara: "Lyutaw nah lyupi â tlu", detail: "Lyu chyhpa, lyu tatawpa chhao chicheipazy a pha kaw khiahta la lyu laipa kôveih a pha leipazy hlâta kho â chhih via tyhpa reina a châ. Lyu tatawpa, thlyu ru kawpa, nata lyu laipa, thlyu nao kawpa â kho thlâh hapa reina a châ hra.", category: "Reih Machâpa / Nôpaw Biephôh" }
     ];
 
-    function normalizeText(str) {
-      var s = (str || "").toLowerCase();
-      if (s.normalize) {
-        s = s.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    function loadEntries() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (!saved) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultEntries));
+        return [...defaultEntries];
       }
-      return s
-        .replace(/ô/g, "o")
-        .replace(/â/g, "a")
-        .replace(/^\s+|\s+$/g, "");
-    }
-
-    function populateCategories() {
-      var select = document.getElementById("categoryFilter");
-      var seen = {};
-      var cats = [];
-      for (var i = 0; i < DATA.length; i++) {
-        var c = DATA[i].cat;
-        if (c && !seen[c]) {
-          seen[c] = true;
-          cats.push(c);
-        }
-      }
-      cats.sort();
-      for (var j = 0; j < cats.length; j++) {
-        var opt = document.createElement("option");
-        opt.value = cats[j];
-        opt.appendChild(document.createTextNode(cats[j]));
-        select.appendChild(opt);
+      try {
+        const parsed = JSON.parse(saved);
+        return Array.isArray(parsed) && parsed.length ? parsed : [...defaultEntries];
+      } catch {
+        return [...defaultEntries];
       }
     }
 
-    function renderEntries() {
-      var searchEl = document.getElementById("searchInput");
-      var catEl = document.getElementById("categoryFilter");
-      var countEl = document.getElementById("resultCount");
-      var listEl = document.getElementById("entriesList");
+    let entries = loadEntries();
+    let englishToMara = true;
+    let activeCategory = "ALL";
 
-      var q = normalizeText(searchEl.value);
-      var cat = catEl.value;
-      var filtered = [];
+    const views = {
+      home: document.getElementById("view-home"),
+      dictionary: document.getElementById("view-dictionary"),
+      grammar: document.getElementById("view-grammar"),
+      editor: document.getElementById("view-editor")
+    };
 
-      for (var i = 0; i < DATA.length; i++) {
-        var item = DATA[i];
-        var matchesCat = (cat === "ALL" || item.cat === cat);
-        var matchesQuery =
-          !q ||
-          normalizeText(item.en).indexOf(q) !== -1 ||
-          normalizeText(item.mara).indexOf(q) !== -1 ||
-          normalizeText(item.cat).indexOf(q) !== -1;
-
-        if (matchesCat && matchesQuery) {
-          filtered.push(item);
-        }
-      }
-
-      countEl.textContent = "Showing " + filtered.length + " of " + DATA.length + " offline entries";
-      listEl.innerHTML = "";
-
-      for (var k = 0; k < filtered.length; k++) {
-        var entryItem = filtered[k];
-
-        var card = document.createElement("div");
-        card.className = "entry";
-
-        var top = document.createElement("div");
-        top.className = "entry-top";
-
-        var maraSpan = document.createElement("span");
-        maraSpan.className = "mara-text";
-        maraSpan.appendChild(document.createTextNode(entryItem.mara));
-
-        var badgeSpan = document.createElement("span");
-        badgeSpan.className = "badge";
-        badgeSpan.appendChild(document.createTextNode(entryItem.cat + " • " + entryItem.type));
-
-        top.appendChild(maraSpan);
-        top.appendChild(badgeSpan);
-
-        var engDiv = document.createElement("div");
-        engDiv.className = "eng-text";
-        engDiv.appendChild(document.createTextNode(entryItem.en));
-
-        card.appendChild(top);
-        card.appendChild(engDiv);
-
-        if (entryItem.note) {
-          var metaDiv = document.createElement("div");
-          metaDiv.className = "meta";
-          metaDiv.appendChild(document.createTextNode(entryItem.note));
-          card.appendChild(metaDiv);
-        }
-
-        listEl.appendChild(card);
-      }
+    function showView(name) {
+      Object.keys(views).forEach((key) => {
+        views[key].classList.toggle("hidden", key !== name);
+      });
+      document.querySelectorAll(".nav-btn").forEach((btn) => {
+        btn.classList.toggle("active", btn.dataset.nav === name);
+      });
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
-    function switchTab(tabId) {
-      var dictBtn = document.getElementById("tabBtnDict");
-      var helperBtn = document.getElementById("tabBtnHelper");
-      var dictPanel = document.getElementById("dict");
-      var helperPanel = document.getElementById("helper");
-
-      if (tabId === "dict") {
-        dictBtn.className = "tab-btn active";
-        helperBtn.className = "tab-btn";
-        dictPanel.className = "panel active";
-        helperPanel.className = "panel";
-      } else {
-        dictBtn.className = "tab-btn";
-        helperBtn.className = "tab-btn active";
-        dictPanel.className = "panel";
-        helperPanel.className = "panel active";
-      }
-    }
-
-    function runHelper() {
-      var raw = document.getElementById("helperInput").value.replace(/^\s+|\s+$/g, "");
-      var out = document.getElementById("helperOutput");
-      if (!raw) {
-        out.textContent = "Please type a word or phrase first.";
+    function updateTranslation() {
+      const q = document.getElementById("translatorInput").value.trim().toLowerCase();
+      const out = document.getElementById("translatorOutput");
+      const sub = document.getElementById("translatorSub");
+      if (!q) {
+        out.textContent = "—";
+        sub.textContent = "Type a word, phrase, or idiom to search";
         return;
       }
 
-      var normInput = normalizeText(raw);
-      var directMatches = [];
-
-      for (var i = 0; i < DATA.length; i++) {
-        var item = DATA[i];
-        if (
-          normalizeText(item.en).indexOf(normInput) !== -1 ||
-          normalizeText(item.mara).indexOf(normInput) !== -1
-        ) {
-          directMatches.push(item);
+      const match = entries.find((item) => {
+        if (englishToMara) {
+          return (
+            item.english.toLowerCase().includes(q) ||
+            (item.detail && item.detail.toLowerCase().includes(q))
+          );
         }
-      }
+        return (
+          item.mara.toLowerCase().includes(q) ||
+          (item.detail && item.detail.toLowerCase().includes(q))
+        );
+      });
 
-      var tokens = normInput.split(/[^a-z0-9]+/);
-      var tokenMatches = [];
-
-      for (var t = 0; t < tokens.length; t++) {
-        var tok = tokens[t];
-        if (!tok) continue;
-
-        for (var w = 0; w < DATA.length; w++) {
-          var wordEntry = DATA[w];
-          if (wordEntry.type !== "word") continue;
-
-          var enParts = normalizeText(wordEntry.en).split(/[\s,\/]+/);
-          var maraParts = normalizeText(wordEntry.mara).split(/[\s,\/]+/);
-
-          var foundInEn = false;
-          var foundInMara = false;
-
-          for (var e = 0; e < enParts.length; e++) {
-            if (enParts[e] === tok) {
-              foundInEn = true;
-              break;
-            }
-          }
-          for (var m = 0; m < maraParts.length; m++) {
-            if (maraParts[m] === tok) {
-              foundInMara = true;
-              break;
-            }
-          }
-
-          if (foundInEn || foundInMara) {
-            tokenMatches.push(tok + " -> " + wordEntry.mara + " (" + wordEntry.en + ")");
-            break;
-          }
-        }
-      }
-
-      var lines = [];
-      if (directMatches.length > 0) {
-        lines.push("Direct / Phrase Matches:");
-        var maxDirect = directMatches.length < 8 ? directMatches.length : 8;
-        for (var d = 0; d < maxDirect; d++) {
-          var dm = directMatches[d];
-          lines.push("• " + dm.en + "  =>  " + dm.mara + " [" + dm.cat + "]");
-        }
+      if (match) {
+        out.textContent = englishToMara ? match.mara : match.english;
+        sub.textContent = match.detail ? `${match.category} • ${match.detail}` : match.category;
       } else {
-        lines.push("No direct phrase match found in v1 offline data.");
+        out.textContent = "No exact match in local database yet.";
+        sub.textContent = "You can add it in Word Editor.";
       }
-
-      if (tokenMatches.length > 0) {
-        lines.push("");
-        lines.push("Word-by-Word Lookup:");
-        for (var tm = 0; tm < tokenMatches.length; tm++) {
-          lines.push("• " + tokenMatches[tm]);
-        }
-      }
-
-      out.textContent = lines.join("\n");
     }
 
-    populateCategories();
-    renderEntries();
+    function renderDictionary() {
+      const q = document.getElementById("searchBox").value.trim().toLowerCase();
+      const list = document.getElementById("dictionaryList");
+      const heading = document.getElementById("dictionaryHeading");
+      const countEl = document.getElementById("resultCount");
+
+      heading.textContent = activeCategory === "ALL" ? "Word Dictionary" : activeCategory;
+
+      const filtered = entries.filter((item) => {
+        const catMatch = activeCategory === "ALL" || item.category === activeCategory;
+        const textMatch =
+          !q ||
+          item.english.toLowerCase().includes(q) ||
+          item.mara.toLowerCase().includes(q) ||
+          (item.detail && item.detail.toLowerCase().includes(q));
+        return catMatch && textMatch;
+      });
+
+      countEl.textContent = `${filtered.length} ${filtered.length === 1 ? "entry" : "entries"}`;
+
+      list.innerHTML = filtered.length
+        ? filtered
+            .map(
+              (item) => `
+              <div class="entry-item">
+                <div class="entry-eng">${item.english}</div>
+                <div class="entry-mara">${item.mara}</div>
+                ${item.detail ? `<div class="entry-detail">${item.detail}</div>` : ""}
+                <span class="entry-cat">${item.category}</span>
+              </div>`
+            )
+            .join("")
+        : `<div class="entry-item"><div class="entry-eng">No matching entries found.</div></div>`;
+    }
+
+    document.getElementById("swapBtn").addEventListener("click", () => {
+      englishToMara = !englishToMara;
+      document.getElementById("sourceLabel").textContent = englishToMara ? "English" : "Mara";
+      document.getElementById("targetLabel").textContent = englishToMara ? "Mara" : "English";
+      document.getElementById("directionText").textContent = englishToMara ? "English → Mara" : "Mara → English";
+      updateTranslation();
+    });
+
+    document.getElementById("translatorInput").addEventListener("input", updateTranslation);
+    document.getElementById("searchBox").addEventListener("input", renderDictionary);
+
+    document.querySelectorAll(".tile").forEach((tile) => {
+      tile.addEventListener("click", () => {
+        if (tile.dataset.open === "editor") {
+          showView("editor");
+          return;
+        }
+        const filterVal = tile.dataset.filter || "ALL";
+        if (filterVal === "Mara Grammar") {
+          showView("grammar");
+          return;
+        }
+        activeCategory = filterVal;
+        document.getElementById("searchBox").value = "";
+        renderDictionary();
+        showView("dictionary");
+      });
+    });
+
+    document.querySelectorAll(".nav-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        if (btn.dataset.nav === "dictionary") {
+          activeCategory = "ALL";
+          document.getElementById("searchBox").value = "";
+          renderDictionary();
+        }
+        showView(btn.dataset.nav);
+      });
+    });
+
+    document.getElementById("saveWordBtn").addEventListener("click", () => {
+      const english = document.getElementById("newEnglish").value.trim();
+      const mara = document.getElementById("newMara").value.trim();
+      const detail = document.getElementById("newDetail").value.trim();
+      const category = document.getElementById("newCategory").value;
+      if (!english || !mara) return;
+
+      entries.unshift({ english, mara, detail, category });
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+      document.getElementById("newEnglish").value = "";
+      document.getElementById("newMara").value = "";
+      document.getElementById("newDetail").value = "";
+      activeCategory = category;
+      renderDictionary();
+      showView("dictionary");
+    });
+
+    document.getElementById("resetDataBtn").addEventListener("click", () => {
+      localStorage.removeItem(STORAGE_KEY);
+      entries = [...defaultEntries];
+      activeCategory = "ALL";
+      updateTranslation();
+      renderDictionary();
+      showView("dictionary");
+    });
+
+    updateTranslation();
+    renderDictionary();
   </script>
 </body>
 </html>
